@@ -109,6 +109,8 @@ class spaceship:
         font1=pygame.font.SysFont('comicsans',30)
         text=font1.render('Health:',1,white)
         win.blit(text,(5,5))
+        textb = font1.render(str(self.health),1,white)
+        win.blit(textb,(210,5))
         if self.health>0:
             pygame.draw.rect(win,red,(15+text.get_width(),round(text.get_height()/2),round(self.health/2),10))
 
@@ -746,6 +748,15 @@ def run(win):
            
         else:
             lasers.pop(lasers.index(laser))
+
+        for e in enemylasers:
+            xx = e.x-laser.x
+            yy = e.y-laser.y
+
+            if xx < 5 and yy < 5 and yy > -5 and xx > -5:
+                enemylasers.pop(enemylasers.index(e))
+                lasers.pop(lasers.index(laser))
+
             
     for alien in aliens:
         if alien.visible:
