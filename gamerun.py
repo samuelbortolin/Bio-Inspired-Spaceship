@@ -9,213 +9,217 @@ if show_game:
     import menu as men
 
     pygame.init()
-    gamebg=pygame.image.load('data/bg.jpg')
-    lasersound=pygame.mixer.Sound('data/laser.wav')
-    hitsound=pygame.mixer.Sound('data/hit.wav')
+    gamebg = pygame.image.load('data/bg.jpg')
+    lasersound = pygame.mixer.Sound('data/laser.wav')
+    hitsound = pygame.mixer.Sound('data/hit.wav')
 
 # seccount=0
-totaltestseconds=0
+totaltestseconds = 0
 
-screenbreite=700
-screenhoehe=550
-shootloop=0
-alienkills=0
-level=1
-spaceshipkills=0
-colorcounter=0
-timee=''
-ru=True
+screenbreite = 700
+screenhoehe = 550
+shootloop = 0
+alienkills = 0
+level = 1
+spaceshipkills = 0
+colorcounter = 0
+timee = ''
+ru = True
 # pausebutton=False
-show1=True
-spawnaliens=True
+show1 = True
+spawnaliens = True
 # clock=pygame.time.Clock()
-addalien=False
+addalien = False
 
-powerups=[['double shooting ability',False,False,'allows you to have twice as much lasers as normal on screen'],
-          ['half alien velocity',False,False,'slows down the aliens or the spaceship'],
-          ['double laser damage',False,False,'your lasers do twice as much damage as normal'],
-          ['double cannons',False,False,'allows you to have two cannons on your spaceship'],
-          ['Health Boost',False,False,'replenishes your health by 1/5']]
+powerups = [['double shooting ability', False, False, 'allows you to have twice as much lasers as normal on screen'],
+            ['half alien velocity', False, False, 'slows down the aliens or the spaceship'],
+            ['double laser damage', False, False, 'your lasers do twice as much damage as normal'],
+            ['double cannons', False, False, 'allows you to have two cannons on your spaceship'],
+            ['Health Boost', False, False, 'replenishes your health by 1/5']]
 
-holdingpowerup=False
-usepowerup=False
-poweruploop=0
+holdingpowerup = False
+usepowerup = False
+poweruploop = 0
 
-aliennumber=2
-alienhealth=10
-alienlaserdamage=1
-alienvelocity=1.3
+aliennumber = 2
+alienhealth = 10
+alienlaserdamage = 1
+alienvelocity = 1.3
 
+yellow = (255, 255, 0)
+black = (0, 0, 0)
+white = (255, 255, 255)
+grey = (150, 150, 150)
+red = (255, 0, 0)
+green = (0, 222, 0)
 
-yellow=(255,255,0)
-black=(0,0,0)
-white=(255,255,255)
-grey=(150,150,150)
-red=(255,0,0)
-green=(0,222,0)
+color = green
 
-color=green
 
 class spaceship:
     def __init__(self):
-        self.x=150
-        self.y=490
-        self.vel=5
-        self.breite=110
-        self.hoehe=50
-        self.health=10
-        self.hitbox=(self.x,self.y,self.breite,self.hoehe)
+        self.x = 150
+        self.y = 490
+        self.vel = 5
+        self.breite = 110
+        self.hoehe = 50
+        self.health = 10
+        self.hitbox = (self.x, self.y, self.breite, self.hoehe)
         # self.visible=True
 
-    def draw(self,win):
+    def draw(self, win):
         global powerups
         global usepowerup
 
         if powerups[4][2]:
-            self.health+=40
-            if self.health>200:
-                self.health=200
-            powerups[4][2]=False
-            usepowerup=False
-        
+            self.health += 40
+            if self.health > 200:
+                self.health = 200
+            powerups[4][2] = False
+            usepowerup = False
+
         if show_game:
-            pygame.draw.rect(win,grey,(self.x+20,self.y,70,50))
-            pygame.draw.rect(win,yellow,(self.x+90,self.y+15,20,35))
-            pygame.draw.rect(win,yellow,(self.x,self.y+15,20,35))
+            pygame.draw.rect(win, grey, (self.x + 20, self.y, 70, 50))
+            pygame.draw.rect(win, yellow, (self.x + 90, self.y + 15, 20, 35))
+            pygame.draw.rect(win, yellow, (self.x, self.y + 15, 20, 35))
 
             if powerups[3][2]:
-                pygame.draw.rect(win,white,(self.x+round(self.breite/2)+5,self.y-20,10,20))
-                pygame.draw.rect(win,white,(self.x+round(self.breite/2)-15,self.y-20,10,20))
+                pygame.draw.rect(win, white, (self.x + round(self.breite / 2) + 5, self.y - 20, 10, 20))
+                pygame.draw.rect(win, white, (self.x + round(self.breite / 2) - 15, self.y - 20, 10, 20))
 
             else:
-                pygame.draw.rect(win,white,(self.x+round(self.breite/2)-5,self.y-20,10,20))
+                pygame.draw.rect(win, white, (self.x + round(self.breite / 2) - 5, self.y - 20, 10, 20))
 
-        self.hitbox=(self.x,self.y,self.breite,self.hoehe)
+        self.hitbox = (self.x, self.y, self.breite, self.hoehe)
 
     def fire(self):
         global powerups
         if powerups[0][2]:
-            le=10
+            le = 10
         else:
-            le=5
-        if len(lasers)<le or True: # TODO: decide if keep powerups or eliminate them 
+            le = 5
+        if len(lasers) < le or True:  # TODO: decide if keep powerups or eliminate them
             if show_game:
                 if men.soundchoose.get_tof():
                     lasersound.set_volume(men.soundbar.get_Volume())
                     lasersound.play()
 
             if powerups[3][2]:
-                lasers.append(laser(self.x+round(self.breite/2)+9,470,yellow))
-                lasers.append(laser(self.x+round(self.breite/2)-11,470,yellow))
+                lasers.append(laser(self.x + round(self.breite / 2) + 9, 470, yellow))
+                lasers.append(laser(self.x + round(self.breite / 2) - 11, 470, yellow))
             else:
-                lasers.append(laser(self.x+round(self.breite/2)-1,470,yellow))
+                lasers.append(laser(self.x + round(self.breite / 2) - 1, 470, yellow))
 
-
-    def drawHealthBar(self,win):
-        font1=pygame.font.SysFont('comicsans',30)
-        text=font1.render('Health:',1,white)
-        win.blit(text,(5,5))
-        textb = font1.render(str(self.health),1,white)
-        win.blit(textb,(210,5))
-        if self.health>0:
-            pygame.draw.rect(win,red,(15+text.get_width(),round(text.get_height()/2),round(self.health/2),10))
+    def drawHealthBar(self, win):
+        font1 = pygame.font.SysFont('comicsans', 30)
+        text = font1.render('Health:', 1, white)
+        win.blit(text, (5, 5))
+        textb = font1.render(str(self.health), 1, white)
+        win.blit(textb, (210, 5))
+        if self.health > 0:
+            pygame.draw.rect(win, red,
+                             (15 + text.get_width(), round(text.get_height() / 2), round(self.health / 2), 10))
 
     def hit(self):
         global alienlaserdamage
-        self.health-=alienlaserdamage
+        self.health -= alienlaserdamage
         if show_game:
             hitsound.play()
 
+
 class enemyAlien:
     if show_game:
-        walkRight=[pygame.image.load('data/R1E.png'),pygame.image.load('data/R2E.png'),pygame.image.load('data/R3E.png'),pygame.image.load('data/R4E.png'),pygame.image.load('data/R5E.png'),
-                pygame.image.load('data/R6E.png'),pygame.image.load('data/R7E.png'),pygame.image.load('data/R8E.png'),pygame.image.load('data/R9E.png'),pygame.image.load('data/R10E.png'),
-                pygame.image.load('data/R11E.png')]
+        walkRight = [pygame.image.load('data/R1E.png'), pygame.image.load('data/R2E.png'),
+                     pygame.image.load('data/R3E.png'), pygame.image.load('data/R4E.png'),
+                     pygame.image.load('data/R5E.png'),
+                     pygame.image.load('data/R6E.png'), pygame.image.load('data/R7E.png'),
+                     pygame.image.load('data/R8E.png'), pygame.image.load('data/R9E.png'),
+                     pygame.image.load('data/R10E.png'),
+                     pygame.image.load('data/R11E.png')]
 
-        walkLeft=[pygame.image.load('data/L1E.png'),pygame.image.load('data/L2E.png'),pygame.image.load('data/L3E.png'),pygame.image.load('data/L4E.png'),pygame.image.load('data/L5E.png'),
-                pygame.image.load('data/L6E.png'),pygame.image.load('data/L7E.png'),pygame.image.load('data/L8E.png'),pygame.image.load('data/L9E.png'),
-                pygame.image.load('data/L10E.png'),pygame.image.load('data/L11E.png')]
+        walkLeft = [pygame.image.load('data/L1E.png'), pygame.image.load('data/L2E.png'),
+                    pygame.image.load('data/L3E.png'), pygame.image.load('data/L4E.png'),
+                    pygame.image.load('data/L5E.png'),
+                    pygame.image.load('data/L6E.png'), pygame.image.load('data/L7E.png'),
+                    pygame.image.load('data/L8E.png'), pygame.image.load('data/L9E.png'),
+                    pygame.image.load('data/L10E.png'), pygame.image.load('data/L11E.png')]
 
-    
-    def __init__(self,x,y,health,vel):
-        self.x=x
-        self.y=y
-        self.health=health
-        self.path=[64,634]
-        self.walkCount=0
-        self.hitbox=(self.x+17,self.y+2,31,57)
-        self.breite=self.hitbox[2]
-        self.vel=vel
+    def __init__(self, x, y, health, vel):
+        self.x = x
+        self.y = y
+        self.health = health
+        self.path = [64, 634]
+        self.walkCount = 0
+        self.hitbox = (self.x + 17, self.y + 2, 31, 57)
+        self.breite = self.hitbox[2]
+        self.vel = vel
         # self.visible=True
-        self.lasercount=0
+        self.lasercount = 0
 
     def move(self):
         global powerups
-            
-        if self.vel>0:
+
+        if self.vel > 0:
             if powerups[1][2]:
-                e=self.vel/2
+                e = self.vel / 2
             else:
-                e=self.vel
-            if self.x+self.vel<self.path[1]-self.hitbox[2]:
-                self.x+=e
+                e = self.vel
+            if self.x + self.vel < self.path[1] - self.hitbox[2]:
+                self.x += e
             else:
-                self.vel=self.vel*-1
-                self.walkCount=0
+                self.vel = self.vel * -1
+                self.walkCount = 0
         else:
             if powerups[1][2]:
-                e=self.vel/2
+                e = self.vel / 2
             else:
-                e=self.vel
-            if self.x-self.vel>self.path[0]:
-                self.x+=e
+                e = self.vel
+            if self.x - self.vel > self.path[0]:
+                self.x += e
             else:
-                self.vel=self.vel*-1
-                self.walkCount=0
+                self.vel = self.vel * -1
+                self.walkCount = 0
 
-    def draw(self,win):
+    def draw(self, win):
         self.move()
         # if self.visible:
-        if self.walkCount+1>=33:
-            self.walkCount=0
+        if self.walkCount + 1 >= 33:
+            self.walkCount = 0
 
-        if self.vel>0:
-            if show_game: win.blit(self.walkRight[self.walkCount//6],(self.x,self.y))
-            self.walkCount+=1
+        if self.vel > 0:
+            if show_game: win.blit(self.walkRight[self.walkCount // 6], (self.x, self.y))
+            self.walkCount += 1
         else:
-            if show_game: win.blit(self.walkLeft[self.walkCount//6],(self.x,self.y))
-            self.walkCount+=1
+            if show_game: win.blit(self.walkLeft[self.walkCount // 6], (self.x, self.y))
+            self.walkCount += 1
 
-        if self.vel>0:
-            self.hitbox=(self.x+14,self.y+2,31,57)
+        if self.vel > 0:
+            self.hitbox = (self.x + 14, self.y + 2, 31, 57)
         else:
-            self.hitbox=(self.x+23,self.y+2,31,57)
+            self.hitbox = (self.x + 23, self.y + 2, 31, 57)
         if show_game: self.drawHealthBar(win)
 
         self.fire()
 
-    def drawHealthBar(self,win):
-        y=self.hitbox[1]-10
-        healthfont=pygame.font.SysFont('arial',20)
-        text=healthfont.render(str(self.health),1,red)
-        win.blit(text,(self.hitbox[0]+(self.hitbox[2]/2),y))
-            
-        
+    def drawHealthBar(self, win):
+        y = self.hitbox[1] - 10
+        healthfont = pygame.font.SysFont('arial', 20)
+        text = healthfont.render(str(self.health), 1, red)
+        win.blit(text, (self.hitbox[0] + (self.hitbox[2] / 2), y))
 
     def fire(self):
-        if self.lasercount==0:
+        if self.lasercount == 0:
             if show_game:
                 if men.soundchoose.get_tof():
                     lasersound.set_volume(men.soundbar.get_Volume())
                     lasersound.play()
-            enemylasers.append(laser(self.x+round(self.breite/2)+15,self.y+8,green))
-            self.lasercount=1
+            enemylasers.append(laser(self.x + round(self.breite / 2) + 15, self.y + 8, green))
+            self.lasercount = 1
 
         else:
-            self.lasercount+=1
-            if self.lasercount>66:
-                self.lasercount=0
-
+            self.lasercount += 1
+            if self.lasercount > 66:
+                self.lasercount = 0
 
     def hit(self):
         if show_game:
@@ -223,138 +227,142 @@ class enemyAlien:
 
         global powerups
         if powerups[2][2]:
-            self.health-=2
+            self.health -= 2
         else:
-            self.health-=1
-        
+            self.health -= 1
+
+
 class laser:
-    def __init__(self,x,y,color):
-        self.x=x
-        self.y=y
-        self.width=3
-        self.height=30
-        self.color=color
-        self.vel=4
+    def __init__(self, x, y, color):
+        self.x = x
+        self.y = y
+        self.width = 3
+        self.height = 30
+        self.color = color
+        self.vel = 4
         # self.visible=True
 
-    def draw(self,win):
-        if show_game: pygame.draw.rect(win,self.color,(self.x,self.y,self.width,self.height))
+    def draw(self, win):
+        if show_game: pygame.draw.rect(win, self.color, (self.x, self.y, self.width, self.height))
+
 
 class enemyspaceship:
     def __init__(self):
-        self.x=150
-        self.y=70
-        self.breite=110
-        self.vel=3
-        self.hoehe=50
-        self.health=50
-        self.path=[64,634]
-        self.hitbox=(self.x,self.y,self.breite,self.hoehe)
-        self.lasercount=0
-        self.showrage=True
+        self.x = 150
+        self.y = 70
+        self.breite = 110
+        self.vel = 3
+        self.hoehe = 50
+        self.health = 50
+        self.path = [64, 634]
+        self.hitbox = (self.x, self.y, self.breite, self.hoehe)
+        self.lasercount = 0
+        self.showrage = True
 
-    def draw(self,win):
+    def draw(self, win):
         global colorcounter
         global color
-        
-        if self.health<26:
-            colorcounter+=1
-            if colorcounter>30:
-                colorcounter=0
-                if color==green:
-                    color=red
+
+        if self.health < 26:
+            colorcounter += 1
+            if colorcounter > 30:
+                colorcounter = 0
+                if color == green:
+                    color = red
                 else:
-                    color=green
+                    color = green
 
         else:
-            color=green
+            color = green
 
         if show_game:
-            pygame.draw.rect(win,grey,(self.x+20,self.y,70,50))
-            if color==red:
-                ef=pygame.font.SysFont('comicsansms',35)
-                text=ef.render('2x',1,red)
-                win.blit(text,(self.x+33,self.y-2))
-            pygame.draw.rect(win,color,(self.x+90,self.y,20,35))
-            pygame.draw.rect(win,color,(self.x,self.y,20,35))
-            pygame.draw.rect(win,white,(self.x+round(self.breite/2)-5,self.y+50,10,20))
+            pygame.draw.rect(win, grey, (self.x + 20, self.y, 70, 50))
+            if color == red:
+                ef = pygame.font.SysFont('comicsansms', 35)
+                text = ef.render('2x', 1, red)
+                win.blit(text, (self.x + 33, self.y - 2))
+            pygame.draw.rect(win, color, (self.x + 90, self.y, 20, 35))
+            pygame.draw.rect(win, color, (self.x, self.y, 20, 35))
+            pygame.draw.rect(win, white, (self.x + round(self.breite / 2) - 5, self.y + 50, 10, 20))
 
-        self.hitbox=(self.x,self.y,self.breite,self.hoehe)
+        self.hitbox = (self.x, self.y, self.breite, self.hoehe)
 
         if show_game: self.drawHealthBar(win)
         self.move()
         self.fire()
 
     def move(self):
-        if self.vel>0:
+        if self.vel > 0:
             if powerups[1][2]:
-                self.vel=1.5
+                self.vel = 1.5
             else:
-                self.vel=3
-            if self.x+self.vel<self.path[1]-self.hitbox[2]:
-                self.x+=self.vel
+                self.vel = 3
+            if self.x + self.vel < self.path[1] - self.hitbox[2]:
+                self.x += self.vel
             else:
-                self.vel=self.vel*-1
+                self.vel = self.vel * -1
         else:
             if powerups[1][2]:
-                self.vel=-1.5
+                self.vel = -1.5
             else:
-                self.vel=-3
-            if self.x-self.vel>self.path[0]:
-                self.x+=self.vel
+                self.vel = -3
+            if self.x - self.vel > self.path[0]:
+                self.x += self.vel
             else:
-                self.vel=self.vel*-1
+                self.vel = self.vel * -1
 
     def fire(self):
-        if self.health>25:
-            seq=66
+        if self.health > 25:
+            seq = 66
         else:
-            seq=33   
-        if self.lasercount==0:
+            seq = 33
+        if self.lasercount == 0:
             if show_game:
                 if men.soundchoose.get_tof():
                     lasersound.set_volume(men.soundbar.get_Volume())
                     lasersound.play()
 
-            if self.vel>0:
-                laserx=self.x+round(self.breite/2)+13
+            if self.vel > 0:
+                laserx = self.x + round(self.breite / 2) + 13
             else:
-                laserx=self.x+round(self.breite/2)-13
-            enemylasers.append(laser(laserx,self.y+8,green))
-            self.lasercount=1
+                laserx = self.x + round(self.breite / 2) - 13
+            enemylasers.append(laser(laserx, self.y + 8, green))
+            self.lasercount = 1
 
         else:
-            self.lasercount+=1
-            if self.lasercount>seq:
-                self.lasercount=0
+            self.lasercount += 1
+            if self.lasercount > seq:
+                self.lasercount = 0
 
     def hit(self):
         if show_game:
             hitsound.play()
-        self.health-=1
+        self.health -= 1
 
-    def drawHealthBar(self,win):
-        y=self.hitbox[1]-10
-        healthfont=pygame.font.SysFont('arial',20)
-        text=healthfont.render(str(self.health),1,red)
-        win.blit(text,(round((self.hitbox[0]+(self.hitbox[2]/2))-round(text.get_width()/2)),y-10))
+    def drawHealthBar(self, win):
+        y = self.hitbox[1] - 10
+        healthfont = pygame.font.SysFont('arial', 20)
+        text = healthfont.render(str(self.health), 1, red)
+        win.blit(text, (round((self.hitbox[0] + (self.hitbox[2] / 2)) - round(text.get_width() / 2)), y - 10))
+
 
 ###########################################################################################
 ###########################################################################################
 
-def showLevel(win,level,msg):
-    lvlfont=pygame.font.SysFont('comicsans',50)
-    text=lvlfont.render('Level: '+str(level),1,white)
-    win.blit(text,(350-round(text.get_width()/2),275))
+def showLevel(win, level, msg):
+    lvlfont = pygame.font.SysFont('comicsans', 50)
+    text = lvlfont.render('Level: ' + str(level), 1, white)
+    win.blit(text, (350 - round(text.get_width() / 2), 275))
 
-    msgfont=pygame.font.SysFont('comicsans',30)
-    text=msgfont.render(msg,1,white)
-    win.blit(text,(350-round(text.get_width()/2),315))
+    msgfont = pygame.font.SysFont('comicsans', 30)
+    text = msgfont.render(msg, 1, white)
+    win.blit(text, (350 - round(text.get_width() / 2), 315))
 
     pygame.display.update()
     time.sleep(2)
 
-def generateLevel(win,number):
+
+def generateLevel(win, number):
     global powerups
     global addalien
     global level
@@ -370,85 +378,85 @@ def generateLevel(win,number):
 
     global levelcounter
 
-    if number==1:
+    if number == 1:
         global level
-        level=0
-        alienkills=0
-        spaceshipkills=0
-        levelcounter=1
+        level = 0
+        alienkills = 0
+        spaceshipkills = 0
+        levelcounter = 1
         global battleship
         global show1
-        show1=True
-        battleship=spaceship()
+        show1 = True
+        battleship = spaceship()
         global addalien
-        addalien=False
-        aliennumber=2
-        alienhealth=10
-        alienlaserdamage=2
-        alienvelocity=1.3
+        addalien = False
+        aliennumber = 2
+        alienhealth = 10
+        alienlaserdamage = 2
+        alienvelocity = 1.3
 
-
-    if levelcounter==2:
-        alienhealth+=5
-        if show_game: showLevel(win,level+1,'Alien health +5')
-    elif levelcounter==3:
-        alienlaserdamage+=2
-        if show_game: showLevel(win,level+1,'Alien laser damage +2')
-    elif levelcounter==4:
-        alienvelocity+=0.1
-        if show_game: showLevel(win,level+1,'Alien velocity +0.1')
-    elif levelcounter==5:
-        if show_game: showLevel(win,level+1,'Enemy spaceship attacks')
-        levelcounter=0
-        spawnaliens=False
-    elif levelcounter==1 and number!=1:
+    if levelcounter == 2:
+        alienhealth += 5
+        if show_game: showLevel(win, level + 1, 'Alien health +5')
+    elif levelcounter == 3:
+        alienlaserdamage += 2
+        if show_game: showLevel(win, level + 1, 'Alien laser damage +2')
+    elif levelcounter == 4:
+        alienvelocity += 0.1
+        if show_game: showLevel(win, level + 1, 'Alien velocity +0.1')
+    elif levelcounter == 5:
+        if show_game: showLevel(win, level + 1, 'Enemy spaceship attacks')
+        levelcounter = 0
+        spawnaliens = False
+    elif levelcounter == 1 and number != 1:
         for p in powerups:
             if p[1]:
-                p[1]=False
-        a=random.randint(0,len(powerups)-1)
-        powerups[a][1]=True
+                p[1] = False
+        a = random.randint(0, len(powerups) - 1)
+        powerups[a][1] = True
 
         if show_game:
-            newpfont=pygame.font.SysFont('comicsans',50)
-            newtext=newpfont.render('New Powerup: '+powerups[a][0],1,white)
-            win.blit(newtext,(350-round(newtext.get_width()/2),225))
+            newpfont = pygame.font.SysFont('comicsans', 50)
+            newtext = newpfont.render('New Powerup: ' + powerups[a][0], 1, white)
+            win.blit(newtext, (350 - round(newtext.get_width() / 2), 225))
 
-            exfont=pygame.font.SysFont('comicsans',30)
-            textex=exfont.render(powerups[a][3],1,white)
-            win.blit(textex,(350-round(textex.get_width()/2),295))
+            exfont = pygame.font.SysFont('comicsans', 30)
+            textex = exfont.render(powerups[a][3], 1, white)
+            win.blit(textex, (350 - round(textex.get_width() / 2), 295))
 
             pygame.display.update()
             print("sleep")
             time.sleep(3)
         redrawGameWindow(win)
-        
+
         if addalien:
-            aliennumber+=1
-            if show_game: showLevel(win,level+1,'Alien number +1')
-            addalien=False
+            aliennumber += 1
+            if show_game: showLevel(win, level + 1, 'Alien number +1')
+            addalien = False
         else:
-            alienlaserdamage+=2
-            if show_game: showLevel(win,level+1,'Alien laser damage +2')
-            addalien=True
+            alienlaserdamage += 2
+            if show_game: showLevel(win, level + 1, 'Alien laser damage +2')
+            addalien = True
 
     if spawnaliens:
-        alieny=70
-        alienx=64
+        alieny = 70
+        alienx = 64
         for e in range(aliennumber):
-            aliens.append(enemyAlien(alienx,alieny,alienhealth,alienvelocity))
-            alieny+=72
-            if alienx==64:
-                alienx=634
-            elif alienx==634:
-                alienx=349
+            aliens.append(enemyAlien(alienx, alieny, alienhealth, alienvelocity))
+            alieny += 72
+            if alienx == 64:
+                alienx = 634
+            elif alienx == 634:
+                alienx = 349
             else:
-                alienx=64
-                
+                alienx = 64
+
     else:
         enemyspaceships.append(enemyspaceship())
-        spawnaliens=True
-    levelcounter+=1
-    level+=1
+        spawnaliens = True
+    levelcounter += 1
+    level += 1
+
 
 ###########################################################################################
 ###########################################################################################
@@ -464,13 +472,13 @@ def generateLevel(win,number):
 #     global timee
 #     pygame.mixer.music.stop()
 #     helplevel=level
-    
+
 #     ptime=calculateTime()
 #     if int(ptime[1])<10:
 #         timee=ptime[0]+':0'+ptime[1]
 #     else:
 #         timee=ptime[0]+':'+ptime[1]
-        
+
 #     generateLevel(win,1)
 #     print(str(helplevel))
 #     print(str(s.readlevel()))
@@ -487,7 +495,7 @@ def generateLevel(win,number):
 #     else:
 #         highscoreloop=False
 #         ybutton=350
-    
+
 #     f=True
 #     g=True
 #     h=True
@@ -506,7 +514,7 @@ def generateLevel(win,number):
 #             enemylasers.pop()
 #         except:
 #             h=False
-            
+
 #     gaov=True
 #     while gaov:
 #         clock.tick(30)
@@ -520,7 +528,7 @@ def generateLevel(win,number):
 #                 return 0
 #         pygame.draw.rect(win,yellow,(50,75,600,400))
 #         pygame.draw.rect(win,black,(60,85,580,380))
-        
+
 #         gameoverfont=pygame.font.SysFont('comicsansms',50)
 #         text=gameoverfont.render('Game Over!',1,yellow)
 #         win.blit(text,(350-round(text.get_width()/2),80))
@@ -529,7 +537,7 @@ def generateLevel(win,number):
 
 #         text=statfont.render('Level: '+str(helplevel),1,white)
 #         win.blit(text,(350-round(text.get_width()/2),160))
-        
+
 #         text=statfont.render('Aliens killed: '+str(alienkills),1,white)
 #         win.blit(text,(350-round(text.get_width()/2),190))
 
@@ -544,22 +552,23 @@ def generateLevel(win,number):
 #                 win.blit(text,(350-round(text.get_width()/2),290))
 #             elif hslo==30:
 #                 hslo=0
-                
+
 #         text=statfont.render('Survived time: '+timee,1,white)
 #         win.blit(text,(350-round(text.get_width()/2),250))
 
 #         exbutton=t.button(win,'Main Menu',250,ybutton,200,50,yellow,black,yellow)
 #         if exbutton:
 #             return 1
-        
+
 #         pygame.display.update()
 
 def calculateTime():
     global totaltestseconds
-    minutes=totaltestseconds//60
-    seconds=totaltestseconds%60
+    minutes = totaltestseconds // 60
+    seconds = totaltestseconds % 60
 
-    return [str(minutes),str(seconds)]
+    return [str(minutes), str(seconds)]
+
 
 # def pause(win):
 #     global timee
@@ -571,7 +580,7 @@ def calculateTime():
 #             else:
 #                 timee=ptime[0]+':'+ptime[1]
 #             return 0
-    
+
 #     pygame.draw.rect(win,yellow,(150,115,400,320))
 #     pygame.draw.rect(win,black,(160,125,380,300))
 
@@ -608,7 +617,7 @@ def calculateTime():
 
 ###########################################################################################
 ###########################################################################################
-        
+
 def redrawGameWindow(win):
     global powerups
     global battleship
@@ -618,52 +627,52 @@ def redrawGameWindow(win):
     global holdingpowerup
     global usepowerup
     global poweruploop
-    
+
     if show_game:
-        win.blit(gamebg,(0,0))
+        win.blit(gamebg, (0, 0))
 
-        lvlfont=pygame.font.SysFont('comicsans',30)
-        text=lvlfont.render('Level: '+str(level),1,white)
-        win.blit(text,(350-round(text.get_width()/2),5))
+        lvlfont = pygame.font.SysFont('comicsans', 30)
+        text = lvlfont.render('Level: ' + str(level), 1, white)
+        win.blit(text, (350 - round(text.get_width() / 2), 5))
 
-        text=lvlfont.render('Powerups: ',1,white)
-        win.blit(text,(5,25))
+        text = lvlfont.render('Powerups: ', 1, white)
+        win.blit(text, (5, 25))
 
         for powerup in powerups:
-            if powerup[1]==True:
-                textp=lvlfont.render(powerup[0],1,white)
-                win.blit(textp,(text.get_width()+5,25))
-                holdingpowerup=True
+            if powerup[1] == True:
+                textp = lvlfont.render(powerup[0], 1, white)
+                win.blit(textp, (text.get_width() + 5, 25))
+                holdingpowerup = True
 
         if holdingpowerup:
-            usebutton=t.button(win,'Use',5+text.get_width()+textp.get_width()+20,25,45,20,yellow,black,yellow)
+            usebutton = t.button(win, 'Use', 5 + text.get_width() + textp.get_width() + 20, 25, 45, 20, yellow, black,
+                                 yellow)
             if usebutton:
-                holdingpowerup=False
-                usepowerup=True
+                holdingpowerup = False
+                usepowerup = True
 
         if usepowerup:
             for powerup in powerups:
-                if powerup[1]==True:
-                    powerup[1]=False
-                    powerup[2]=True
+                if powerup[1] == True:
+                    powerup[1] = False
+                    powerup[2] = True
 
         for powerup in powerups:
             if powerup[2]:
-                textp=lvlfont.render(powerup[0],1,white)
-                win.blit(textp,(text.get_width()+5,25))
-                poweruploop+=1
-                if poweruploop==720:
-                    poweruploop=0
-                    powerup[2]=False
-                    usepowerup=False
+                textp = lvlfont.render(powerup[0], 1, white)
+                win.blit(textp, (text.get_width() + 5, 25))
+                poweruploop += 1
+                if poweruploop == 720:
+                    poweruploop = 0
+                    powerup[2] = False
+                    usepowerup = False
 
         if not holdingpowerup and not usepowerup:
-            textp=lvlfont.render('None',1,white)
-            win.blit(textp,(text.get_width()+5,25))
-        
-    
+            textp = lvlfont.render('None', 1, white)
+            win.blit(textp, (text.get_width() + 5, 25))
+
     # pausebutton=t.button(win,'Pause',625,10,65,30,yellow,black,yellow)
-    
+
     # keys=pygame.key.get_pressed()
     # if pausebutton or keys[pygame.K_ESCAPE]:
     #     pause(win)
@@ -675,7 +684,7 @@ def redrawGameWindow(win):
         laser.draw(win)
 
     for alien in aliens:
-        if alien.health>0:
+        if alien.health > 0:
             alien.draw(win)
         # else:
         #     # print("pop aliens")
@@ -683,13 +692,12 @@ def redrawGameWindow(win):
         #     alienkills+=1
 
     for v in enemyspaceships:
-        if v.health>0:
+        if v.health > 0:
             v.draw(win)
         # else:
         #     # print("pop enemyspaceships")
         #     enemyspaceships.pop()
         #     spaceshipkills+=1
-            
 
     # if battleship.visible:    
     battleship.draw(win)
@@ -697,20 +705,24 @@ def redrawGameWindow(win):
         battleship.drawHealthBar(win)
 
         pygame.display.update()
-    
-battleship=spaceship()
-lasers=[]
-enemylasers=[]
-aliens=[]
-enemyspaceships=[]
+
+
+battleship = spaceship()
+lasers = []
+enemylasers = []
+aliens = []
+enemyspaceships = []
 
 import time
+
 tick_time = time.time()
+
+
 def tick(framerate):
     global tick_time
     elapsed_time = time.time() - tick_time
-    if elapsed_time < 1/framerate:
-        time.sleep(1/framerate - elapsed_time)
+    if elapsed_time < 1 / framerate:
+        time.sleep(1 / framerate - elapsed_time)
     tick_time = time.time()
 
 
@@ -723,7 +735,7 @@ def run(win):
     # global pausebutton
     global totaltestseconds
     global timee
-    
+
     if show_game:
         tick(60)
         # clock.tick(60)
@@ -733,144 +745,138 @@ def run(win):
     #     totaltestseconds+=1
     #     seccount=0
 
-    
     redrawGameWindow(win)
-    
+
     global show1
     if show1:
-        alienkills=0
-        spaceshipkills=0
-        generateLevel(win,1)
+        alienkills = 0
+        spaceshipkills = 0
+        generateLevel(win, 1)
         if show_game:
-            showLevel(win,level,'')
-        totaltestseconds=0
+            showLevel(win, level, '')
+        totaltestseconds = 0
         # seccount=1
-        show1=False
-        
+        show1 = False
+
     global shootloop
     if show_game:
         for event in pygame.event.get():
-            if event.type==pygame.QUIT:
-                ptime=calculateTime()
-                if int(ptime[1])<10:
-                    timee=ptime[0]+':0'+ptime[1]
+            if event.type == pygame.QUIT:
+                ptime = calculateTime()
+                if int(ptime[1]) < 10:
+                    timee = ptime[0] + ':0' + ptime[1]
                 else:
-                    timee=ptime[0]+':'+ptime[1]
+                    timee = ptime[0] + ':' + ptime[1]
                 return 0
 
     # if battleship.visible:
     K_LEFT, K_RIGHT, K_SPACE = 1073741904, 1073741903, 32
     if show_game:
-        keys=pygame.key.get_pressed()
+        keys = pygame.key.get_pressed()
     else:
         import random
         keys = {K_LEFT: False, K_RIGHT: False, K_SPACE: False}
-        move = random.randint(0,2)
+        move = random.randint(0, 2)
         if move == 0:
             keys[K_LEFT] = True
         elif move == 1:
             keys[K_RIGHT] = True
-        
+
         # if random.randint(0,1):
         keys[K_SPACE] = True
 
-
-
     if keys[K_LEFT]:
-        if battleship.x>battleship.vel:
-            battleship.x-=battleship.vel
+        if battleship.x > battleship.vel:
+            battleship.x -= battleship.vel
 
     if keys[K_RIGHT]:
-        if battleship.x<screenbreite-battleship.breite-battleship.vel:
-            battleship.x+=battleship.vel
+        if battleship.x < screenbreite - battleship.breite - battleship.vel:
+            battleship.x += battleship.vel
 
     if keys[K_SPACE]:
-        if shootloop==0:
+        if shootloop == 0:
             battleship.fire()
-            shootloop=1
+            shootloop = 1
 
-    if shootloop>0:
-        shootloop+=1
-    if shootloop>14:
-        shootloop=0
+    if shootloop > 0:
+        shootloop += 1
+    if shootloop > 14:
+        shootloop = 0
 
     for laser in lasers:
-        if laser.y>40:
-            laser.y-=laser.vel
-           
+        if laser.y > 40:
+            laser.y -= laser.vel
+
         else:
             lasers.pop(lasers.index(laser))
 
         for e in enemylasers:
-            xx = e.x-laser.x
-            yy = e.y-laser.y
+            xx = e.x - laser.x
+            yy = e.y - laser.y
 
             if xx < 5 and yy < 5 and yy > -5 and xx > -5:
                 enemylasers.pop(enemylasers.index(e))
                 lasers.pop(lasers.index(laser))
 
-            
     for alien in aliens:
         # print("alien:", alien.x, alien.y, alien.health)
         # if alien.visible:
         for laser in lasers:
-            if laser.y<alien.hitbox[1]+alien.hitbox[3] and laser.y>alien.hitbox[1]:
-                if laser.x>alien.hitbox[0] and laser.x<alien.hitbox[0]+alien.hitbox[2]:
+            if laser.y < alien.hitbox[1] + alien.hitbox[3] and laser.y > alien.hitbox[1]:
+                if laser.x > alien.hitbox[0] and laser.x < alien.hitbox[0] + alien.hitbox[2]:
                     alien.hit()
                     lasers.pop(lasers.index(laser))
                     print("hit alien")
-            elif laser.y+laser.height<alien.hitbox[1]+alien.hitbox[3] and laser.y+laser.height>alien.hitbox[1]:
-                if laser.x>alien.hitbox[0] and laser.x<alien.hitbox[0]+alien.hitbox[2]:
+            elif laser.y + laser.height < alien.hitbox[1] + alien.hitbox[3] and laser.y + laser.height > alien.hitbox[
+                1]:
+                if laser.x > alien.hitbox[0] and laser.x < alien.hitbox[0] + alien.hitbox[2]:
                     alien.hit()
                     lasers.pop(lasers.index(laser))
                     print("hit alien")
-    
 
     for v in enemyspaceships:
         # print("enemyspaceships:", v.x, v.y, v.health)
 
         for laser in lasers:
-            if laser.y<v.hitbox[1]+v.hitbox[3] and laser.y>v.hitbox[1]:
-               if laser.x>v.hitbox[0] and laser.x<v.hitbox[0]+v.hitbox[2]:
-                        v.hit()
-                        lasers.pop(lasers.index(laser))
-                        print("hit enemyspaceships")
-            elif laser.y+laser.height<v.hitbox[1]+v.hitbox[3] and laser.y+laser.height>v.hitbox[1]:
-                    if laser.x>v.hitbox[0] and laser.x<v.hitbox[0]+v.hitbox[2]:
-                        v.hit()
-                        lasers.pop(lasers.index(laser))
-                        print("hit enemyspaceships")
-
+            if laser.y < v.hitbox[1] + v.hitbox[3] and laser.y > v.hitbox[1]:
+                if laser.x > v.hitbox[0] and laser.x < v.hitbox[0] + v.hitbox[2]:
+                    v.hit()
+                    lasers.pop(lasers.index(laser))
+                    print("hit enemyspaceships")
+            elif laser.y + laser.height < v.hitbox[1] + v.hitbox[3] and laser.y + laser.height > v.hitbox[1]:
+                if laser.x > v.hitbox[0] and laser.x < v.hitbox[0] + v.hitbox[2]:
+                    v.hit()
+                    lasers.pop(lasers.index(laser))
+                    print("hit enemyspaceships")
 
     for laser in enemylasers:
-        if laser.y+laser.height<battleship.hitbox[1]+battleship.hitbox[3] and laser.y+laser.height>battleship.hitbox[1]:
-            if laser.x>battleship.hitbox[0] and laser.x<battleship.hitbox[0]+battleship.hitbox[2]:
+        if laser.y + laser.height < battleship.hitbox[1] + battleship.hitbox[3] and laser.y + laser.height > \
+                battleship.hitbox[1]:
+            if laser.x > battleship.hitbox[0] and laser.x < battleship.hitbox[0] + battleship.hitbox[2]:
                 battleship.hit()
                 enemylasers.pop(enemylasers.index(laser))
                 print("hit battleship")
 
     for laser in enemylasers:
-        if laser.y<470:
-            laser.y+=laser.vel
+        if laser.y < 470:
+            laser.y += laser.vel
         else:
             enemylasers.pop(enemylasers.index(laser))
-
 
     for alien in aliens:
         if alien.health <= 0:
             print("alien killed")
             aliens.pop(aliens.index(alien))
-            alienkills+=1
+            alienkills += 1
 
     for v in enemyspaceships:
         if v.health <= 0:
             print("enemyspaceship killed")
             enemyspaceships.pop()
-            spaceshipkills+=1
-
+            spaceshipkills += 1
 
     # print("battleship:", battleship.x, battleship.y, battleship.health)
-    if battleship.health<=0:
+    if battleship.health <= 0:
         # if not ru:
         #     go=gameover(win)
         #     if go==0 or go==1:
@@ -880,23 +886,23 @@ def run(win):
         print("gameover")
         return 0
 
-    if len(aliens)==0 and len(enemyspaceships)==0:
-        l=True
+    if len(aliens) == 0 and len(enemyspaceships) == 0:
+        l = True
         while l:
             try:
                 lasers.pop()
             except:
-                l=False
-        e=True
+                l = False
+        e = True
         while e:
             try:
                 enemylasers.pop()
             except:
-                e=False
-        battleship.x=150
-        
+                e = False
+        battleship.x = 150
+
         redrawGameWindow(win)
-        generateLevel(win,0)
+        generateLevel(win, 0)
 
     # keys=pygame.key.get_pressed()
     # if pausebutton or keys[pygame.K_ESCAPE]:
