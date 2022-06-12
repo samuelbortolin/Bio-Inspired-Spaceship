@@ -26,7 +26,7 @@ def plot_stats(statistics, ylog=False, view=False, filename='avg_fitness.png'):
     plt.plot(generation, avg_fitness + stdev_fitness, 'g-.', label="+1 sd")
     plt.plot(generation, best_fitness, 'r-', label="best")
 
-    #plt.title("Population's average/std. dev and best fitness")
+    # plt.title("Population's average/std. dev and best fitness")
     plt.xlabel("Generations")
     plt.ylabel("Fitness")
     plt.grid()
@@ -37,10 +37,7 @@ def plot_stats(statistics, ylog=False, view=False, filename='avg_fitness.png'):
     plt.savefig(filename)
     if view:
         plt.show()
-        #plt.close()
-        fig = None
-
-    return fig
+        # plt.close()
 
 
 def plot_spikes(spikes, view=False, filename=None, title=None):
@@ -86,7 +83,7 @@ def plot_spikes(spikes, view=False, filename=None, title=None):
 
     if view:
         plt.show()
-        #plt.close()
+        # plt.close()
         fig = None
 
     return fig
@@ -106,7 +103,7 @@ def plot_species(statistics, view=False, filename='speciation.png'):
     ax = fig.add_subplot(111)
     ax.stackplot(range(num_generations), *curves)
 
-    #plt.title("Speciation")
+    # plt.title("Speciation")
     plt.ylabel("Size per Species")
     plt.xlabel("Generations")
 
@@ -114,14 +111,13 @@ def plot_species(statistics, view=False, filename='speciation.png'):
 
     if view:
         plt.show()
-        #plt.close()
+        # plt.close()
         fig = None
 
     return fig
 
 
-def draw_net(config, genome, view=False, filename=None, node_names=None, show_disabled=True, prune_unused=False,
-             node_colors=None, fmt='png'):
+def draw_net(config, genome, view=False, filename=None, node_names=None, show_disabled=True, prune_unused=False, node_colors=None, fmt='png'):
     """ Receives a genome and draws a neural network with arbitrary topology. """
     # Attributes for network nodes.
     if graphviz is None:
@@ -150,18 +146,14 @@ def draw_net(config, genome, view=False, filename=None, node_names=None, show_di
     for k in config.genome_config.input_keys:
         inputs.add(k)
         name = node_names.get(k, str(k))
-        input_attrs = {'style': 'filled',
-                       'shape': 'box'}
-        input_attrs['fillcolor'] = node_colors.get(k, 'lightgray')
+        input_attrs = {'style': 'filled', 'shape': 'box', 'fillcolor': node_colors.get(k, 'lightgray')}
         dot.node(name, _attributes=input_attrs)
 
     outputs = set()
     for k in config.genome_config.output_keys:
         outputs.add(k)
         name = node_names.get(k, str(k))
-        node_attrs = {'style': 'filled'}
-        node_attrs['fillcolor'] = node_colors.get(k, 'lightblue')
-
+        node_attrs = {'style': 'filled', 'fillcolor': node_colors.get(k, 'lightblue')}
         dot.node(name, _attributes=node_attrs)
 
     if prune_unused:
@@ -186,22 +178,20 @@ def draw_net(config, genome, view=False, filename=None, node_names=None, show_di
         if n in inputs or n in outputs:
             continue
 
-        attrs = {'style': 'filled',
-                 'fillcolor': node_colors.get(n, 'white')}
+        attrs = {'style': 'filled', 'fillcolor': node_colors.get(n, 'white')}
         dot.node(str(n), _attributes=attrs)
 
     for cg in genome.connections.values():
         if cg.enabled or show_disabled:
-            #if cg.input not in used_nodes or cg.output not in used_nodes:
-            #    continue
-            input, output = cg.key
-            a = node_names.get(input, str(input))
-            b = node_names.get(output, str(output))
+            # if cg.input not in used_nodes or cg.output not in used_nodes:
+            #     continue
+            input_key, output_key = cg.key
+            a = node_names.get(input_key, str(input_key))
+            b = node_names.get(output_key, str(output_key))
             style = 'solid' if cg.enabled else 'dotted'
             color = 'green' if cg.weight > 0 else 'red'
             width = str(0.1 + abs(cg.weight / 5.0))
             dot.edge(a, b, _attributes={'style': style, 'color': color, 'penwidth': width})
 
     dot.render(filename, view=view)
-
     return dot
