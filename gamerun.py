@@ -930,7 +930,7 @@ def run(win, net):
         #         ru = True
         #         return go
         # ru = False
-        print("game over")
+        # print("game over")
         return 0
 
     if len(aliens) == 0 and len(enemy_spaceships) == 0:

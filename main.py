@@ -88,7 +88,7 @@ config_file = "config.txt"
 run_best = True
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     # TODO we should also test GP and compare it with NEAT
 
@@ -99,7 +99,7 @@ if __name__ == '__main__':
 
     if not run_best:
         if num_runs == 1:
-            # Create the population, which is the top-level object for a NEAT run.
+            # Create the population.
             p = neat.Population(config)
 
             # Add a stdout reporter to show progress in the terminal.
@@ -107,22 +107,24 @@ if __name__ == '__main__':
             p.add_reporter(neat.StdOutReporter(True))
             p.add_reporter(stats)
 
-            # run NEAT for num_generations
+            # Run NEAT for num_generations.
             winner = p.run(eval_genomes, num_generations)
-            # TODO dump only if it has a better fitness
-            pickle.dump(winner, open(f"winner{datetime.datetime.now().isoformat()}.pkl", "wb"))
 
             # Display the winning genome.
-            print('\nBest genome:\n{!s}'.format(winner))
-            # TODO store image only if it has a better fitness
-            visualize.draw_net(config, winner, filename=f"winner_net{datetime.datetime.now().isoformat()}", view=True)
+            print(f"\nBest genome:\n{winner}")
 
+            # Create the winning network.
             winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
-            # TODO dump only if it has a better fitness
-            pickle.dump(winner_net, open(f"winner_net{datetime.datetime.now().isoformat()}.pkl", "wb"))
 
+            # Simulate the game with the winning network and showing it.
             show_game = True
-            simulate_game(show_game=show_game, net=winner_net)
+            best_fitness = simulate_game(show_game=show_game, net=winner_net)
+            print(f"\nBest fitness simulation:\n{best_fitness}")
+
+            # TODO dump and store image only if it has a better fitness.
+            pickle.dump(winner, open(f"winner_{datetime.datetime.now().isoformat()}_fitness_{best_fitness}.pkl", "wb"))
+            pickle.dump(winner_net, open(f"winner_net_{datetime.datetime.now().isoformat()}_fitness_{best_fitness}.pkl", "wb"))
+            visualize.draw_net(config, winner, filename=f"winner_net_{datetime.datetime.now().isoformat()}_fitness_{best_fitness}", view=True)
             if show_game:
                 pygame.quit()
 
@@ -130,10 +132,33 @@ if __name__ == '__main__':
             results = []
             best_fitnesses = []
             for i in range(num_runs):
-                print('{0}/{1}'.format(i + 1, num_runs))
+                print(f"run {i + 1}/{num_runs}")
+
+                # Create the population.
                 p = neat.Population(config)
+
+                # Add a stdout reporter to show progress in the terminal.
+                stats = neat.StatisticsReporter()
+                p.add_reporter(neat.StdOutReporter(True))
+                p.add_reporter(stats)
+
+                # Run NEAT for num_generations.
                 winner = p.run(eval_genomes, num_generations)
+
+                # Display the winning genome.
+                print(f"\nBest genome:\n{winner}")
+
+                # Store best fitness for statistical analysis.
                 best_fitnesses.append(winner.fitness)
+
+                # Create the winning network.
+                winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
+
+                # TODO dump and store image only if it has a better fitness.
+                pickle.dump(winner, open(f"winner_{datetime.datetime.now().isoformat()}_fitness_{winner.fitness}.pkl", "wb"))
+                pickle.dump(winner_net, open(f"winner_net_{datetime.datetime.now().isoformat()}_fitness_{winner.fitness}.pkl", "wb"))
+                visualize.draw_net(config, winner, filename=f"winner_net_{datetime.datetime.now().isoformat()}_fitness_{winner.fitness}", view=True)
+
             results.append(best_fitnesses)
 
             fig = figure('NEAT')
@@ -148,6 +173,7 @@ if __name__ == '__main__':
         winner_net = pickle.load(open("winner_net2022-06-13T10:27:20.859471.pkl", "rb"))
 
         show_game = True
-        simulate_game(show_game=show_game, net=winner_net)
+        best_fitness = simulate_game(show_game=show_game, net=winner_net)
+        print(f"\nBest fitness simulation:\n{best_fitness}")
         if show_game:
             pygame.quit()
