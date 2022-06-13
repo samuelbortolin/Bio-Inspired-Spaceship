@@ -81,11 +81,11 @@ def eval_genomes(genomes, config):
         genome.fitness = simulate_game(show_game=False, net=net)
 
 
-num_generations = 100
+num_generations = 50
 num_runs = 1
 
 config_file = "config.txt"
-run_best = False
+run_best = True
 
 
 if __name__ == '__main__':
@@ -144,8 +144,8 @@ if __name__ == '__main__':
 
     else:
         # TODO load the one with better fitness
-        winner = pickle.load(open("winner2022-06-12T19:55:02.224254.pkl", "rb"))
-        winner_net = pickle.load(open("winner_net2022-06-12T19:55:03.938031.pkl", "rb"))
+        winner = pickle.load(open("winner2022-06-13T10:27:19.283603.pkl", "rb"))
+        winner_net = pickle.load(open("winner_net2022-06-13T10:27:20.859471.pkl", "rb"))
 
         show_game = True
         simulate_game(show_game=show_game, net=winner_net)
