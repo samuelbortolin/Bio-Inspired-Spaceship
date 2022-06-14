@@ -73,7 +73,7 @@ def simulate_game(show_game, net):
     #     s.save(gamerun.level, gamerun.alienkills, gamerun.spaceshipkills, gamerun.timee, gamerun.totaltestseconds)
 
     # TODO find the best fitness based on gamerun.level, gamerun.alienkills, gamerun.spaceshipkills, gamerun.frame
-    print(gamerun.level, gamerun.alienkills, gamerun.spaceshipkills, gamerun.frames)  # TODO valutare se rimuove numero di frmae? (kind of penalty for escaping?)
+    print(gamerun.level, gamerun.alienkills, gamerun.spaceshipkills)  # , gamerun.frames)  # TODO valutare se rimuove il numero di frame dal fitness? (kind of penalty for escaping?)
     # TODO magari valutare i colpi dati ai nemici?
     # TODO magari valutare i colpi presi dai nemici?
     return (gamerun.level - 1) * 100 + gamerun.alienkills * 10 + gamerun.spaceshipkills * 50  # + gamerun.frames // 1000
@@ -85,28 +85,25 @@ def eval_genomes(genomes, config):
         genome.fitness = simulate_game(show_game=False, net=net)
 
 
-num_generations = 50
-num_runs = 1
-
-config_file = "config.txt"
-
-
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="NEAT Spaceship")
-    parser.add_argument("--runbest", action='store_true', help='run the best individual found')
-    parser.add_argument("--train", action='store_true', help='run the training of the NN')
+    parser.add_argument("--run_best", action="store_true", help="Run the best individual found")
+    parser.add_argument("--neat", action="store_true", help="Run the NEAT algorithm for training of the NN")
+    parser.add_argument("--config_file", type=str, default="config.txt", help="Run the NEAT algorithm for training of the NN")
+    parser.add_argument("--num_runs", type=int, default=1, help="The number of runs")
+    parser.add_argument("--num_generations", type=int, default=10, help="The number of generations for each run")
     args = parser.parse_args()
 
     # TODO we should also test GP and compare it with NEAT
 
     # Load configuration.
     local_dir = os.path.dirname(__file__)
-    config_file = os.path.join(local_dir, config_file)
+    config_file = os.path.join(local_dir, args.config_file)
     config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet, neat.DefaultStagnation, config_file)
 
-    if args.train:
-        if num_runs == 1:
+    if args.neat:
+        if args.num_runs == 1:
             # Create the population.
             p = neat.Population(config)
 
@@ -116,7 +113,7 @@ if __name__ == "__main__":
             p.add_reporter(stats)
 
             # Run NEAT for num_generations.
-            winner = p.run(eval_genomes, num_generations)
+            winner = p.run(eval_genomes, args.num_generations)
 
             # Display the winning genome.
             print(f"\nBest genome:\n{winner}")
@@ -139,8 +136,8 @@ if __name__ == "__main__":
         else:
             results = []
             best_fitnesses = []
-            for i in range(num_runs):
-                print(f"run {i + 1}/{num_runs}")
+            for i in range(args.num_runs):
+                print(f"run {i + 1}/{args.num_runs}")
 
                 # Create the population.
                 p = neat.Population(config)
@@ -151,7 +148,7 @@ if __name__ == "__main__":
                 p.add_reporter(stats)
 
                 # Run NEAT for num_generations.
-                winner = p.run(eval_genomes, num_generations)
+                winner = p.run(eval_genomes, args.num_generations)
 
                 # Display the winning genome.
                 print(f"\nBest genome:\n{winner}")
@@ -175,7 +172,7 @@ if __name__ == "__main__":
             ax.set_ylabel('Best fitness')
             show()
 
-    elif args.runbest:
+    elif args.run_best:
         # TODO load the one with better fitness
         winner = pickle.load(open("winner_2022-06-13T22:28:19.292459_fitness_779.pkl", "rb"))
         winner_net = pickle.load(open("winner_net_2022-06-13T22:28:19.293457_fitness_779.pkl", "rb"))
