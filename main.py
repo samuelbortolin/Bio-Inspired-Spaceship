@@ -11,6 +11,8 @@ import pygame
 import gamerun
 import visualize
 
+import argparse
+
 
 def simulate_game(show_game, net):
     gamerun.show_game = show_game
@@ -40,7 +42,7 @@ def simulate_game(show_game, net):
     gamerun.colorcounter = 0
     gamerun.timee = ''
     gamerun.ru = True
-    gamerun.pausebutton = False
+    # gamerun.pausebutton = False
     gamerun.show1 = True
     gamerun.spawnaliens = True
     gamerun.addalien = False
@@ -87,10 +89,14 @@ num_generations = 50
 num_runs = 1
 
 config_file = "config.txt"
-run_best = True
 
 
 if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description="NEAT Spaceship")
+    parser.add_argument("--runbest", action='store_true', help='run the best individual found')
+    parser.add_argument("--train", action='store_true', help='run the training of the NN')
+    args = parser.parse_args()
 
     # TODO we should also test GP and compare it with NEAT
 
@@ -99,7 +105,7 @@ if __name__ == "__main__":
     config_file = os.path.join(local_dir, config_file)
     config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet, neat.DefaultStagnation, config_file)
 
-    if not run_best:
+    if args.train:
         if num_runs == 1:
             # Create the population.
             p = neat.Population(config)
@@ -169,7 +175,7 @@ if __name__ == "__main__":
             ax.set_ylabel('Best fitness')
             show()
 
-    else:
+    elif args.runbest:
         # TODO load the one with better fitness
         winner = pickle.load(open("winner_2022-06-13T22:28:19.292459_fitness_779.pkl", "rb"))
         winner_net = pickle.load(open("winner_net_2022-06-13T22:28:19.293457_fitness_779.pkl", "rb"))

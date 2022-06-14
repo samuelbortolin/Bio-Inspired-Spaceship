@@ -9,7 +9,7 @@ show_game = False
 gamebg = None
 lasersound = None
 hitsound = None
-# clock=pygame.time.Clock()
+clock=pygame.time.Clock()
 
 frames = 0
 totaltestseconds = 0
@@ -729,14 +729,6 @@ enemy_spaceships = []
 tick_time = time.time()
 
 
-def tick(framerate):
-    global tick_time
-    elapsed_time = time.time() - tick_time
-    if elapsed_time < 1 / framerate:
-        time.sleep(1 / framerate - elapsed_time)
-    tick_time = time.time()
-
-
 def run(win, net):
     global alienkills
     global spaceshipkills
@@ -755,8 +747,7 @@ def run(win, net):
     frames += 1
 
     if show_game:
-        tick(600)
-        # clock.tick(60)
+        clock.tick(120)
 
     # seccount+=1
     # if seccount==60:
