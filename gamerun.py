@@ -28,6 +28,7 @@ show1 = True
 spawnaliens = True
 addalien = False
 
+# TODO remove powerups
 powerups = [['double shooting ability', False, False, 'allows you to have twice as much lasers as normal on screen'],
             ['half alien velocity', False, False, 'slows down the aliens or the spaceship'],
             ['double laser damage', False, False, 'your lasers do twice as much damage as normal'],
@@ -116,8 +117,7 @@ class Spaceship:
         textb = font1.render(str(self.health), 1, white)
         win.blit(textb, (210, 5))
         if self.health > 0:
-            pygame.draw.rect(win, red,
-                             (15 + text.get_width(), round(text.get_height() / 2), round(self.health / 2), 10))
+            pygame.draw.rect(win, red, (15 + text.get_width(), round(text.get_height() / 2), round(self.health / 2), 10))
 
     def hit(self):
         global alienlaserdamage
@@ -251,6 +251,7 @@ class Laser:
 
 
 class EnemySpaceship:
+
     def __init__(self):
         self.x = 150
         self.y = 70
@@ -281,10 +282,10 @@ class EnemySpaceship:
 
         if show_game:
             pygame.draw.rect(win, grey, (self.x + 20, self.y, 70, 50))
-            if color == red:
-                ef = pygame.font.SysFont('comicsansms', 35)
-                text = ef.render('2x', 1, red)
-                win.blit(text, (self.x + 33, self.y - 2))
+            # if color == red:
+            #     ef = pygame.font.SysFont('comicsansms', 35)
+            #     text = ef.render('2x', 1, red)
+            #     win.blit(text, (self.x + 33, self.y - 2))
             pygame.draw.rect(win, color, (self.x + 90, self.y, 20, 35))
             pygame.draw.rect(win, color, (self.x, self.y, 20, 35))
             pygame.draw.rect(win, white, (self.x + round(self.breite / 2) - 5, self.y + 50, 10, 20))
@@ -317,10 +318,11 @@ class EnemySpaceship:
                 self.vel = self.vel * -1
 
     def fire(self):
-        if self.health > 25:
-            seq = 66
-        else:
-            seq = 33
+        # if self.health > 25:
+        #     seq = 66
+        # else:
+        #     seq = 33
+        seq = 33
         if self.lasercount == 0:
             # if show_game:
             #     if men.soundchoose.get_tof():
@@ -400,18 +402,20 @@ def generateLevel(win, number):
         alienlaserdamage = 2
         alienvelocity = 1.3
 
-    if levelcounter == 2:
-        alienhealth += 5
+    if levelcounter == 2:  # TODO maybe all'inizio semplificare i livelli?
+        alienhealth += 2
         if show_game:
-            showLevel(win, level + 1, 'Alien health +5')
+            showLevel(win, level + 1, 'Alien health +2')
     elif levelcounter == 3:
-        alienlaserdamage += 2
+        alienlaserdamage += 1
         if show_game:
-            showLevel(win, level + 1, 'Alien laser damage +2')
+            showLevel(win, level + 1, 'Alien laser damage +1')
     elif levelcounter == 4:
-        alienvelocity += 0.1
+        alienhealth += 2
+        alienlaserdamage += 1
+        # alienvelocity += 0.1
         if show_game:
-            showLevel(win, level + 1, 'Alien velocity +0.1')
+            showLevel(win, level + 1, 'Alien health +2\nAlien laser damage +1')
     elif levelcounter == 5:
         if show_game:
             showLevel(win, level + 1, 'Enemy spaceship attacks')

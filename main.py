@@ -70,9 +70,11 @@ def simulate_game(show_game, net):
     # elif gamerun.totaltestseconds > s.readseconds() and gamerun.level == s.readlevel():
     #     s.save(gamerun.level, gamerun.alienkills, gamerun.spaceshipkills, gamerun.timee, gamerun.totaltestseconds)
 
-    # TODO define a fitness based on gamerun.level, gamerun.alienkills, gamerun.spaceshipkills, gamerun.frame
-    print(gamerun.level, gamerun.alienkills, gamerun.spaceshipkills, gamerun.frames)
-    return (gamerun.level - 1) * 100 + gamerun.alienkills * 10 + gamerun.spaceshipkills * 50 + gamerun.frames // 1000
+    # TODO find the best fitness based on gamerun.level, gamerun.alienkills, gamerun.spaceshipkills, gamerun.frame
+    print(gamerun.level, gamerun.alienkills, gamerun.spaceshipkills, gamerun.frames)  # TODO valutare se rimuove numero di frmae? (kind of penalty for escaping?)
+    # TODO magari valutare i colpi dati ai nemici?
+    # TODO magari valutare i colpi presi dai nemici?
+    return (gamerun.level - 1) * 100 + gamerun.alienkills * 10 + gamerun.spaceshipkills * 50  # + gamerun.frames // 1000
 
 
 def eval_genomes(genomes, config):
