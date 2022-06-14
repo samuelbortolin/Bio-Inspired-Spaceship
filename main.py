@@ -74,8 +74,8 @@ def simulate_game(show_game, net):
 
     # TODO find the best fitness based on gamerun.level, gamerun.alienkills, gamerun.spaceshipkills, gamerun.frame
     print(gamerun.level, gamerun.alienkills, gamerun.spaceshipkills)  # , gamerun.frames)  # TODO valutare se rimuove il numero di frame dal fitness? (kind of penalty for escaping?)
-    # TODO magari valutare i colpi dati ai nemici?
-    # TODO magari valutare i colpi presi dai nemici?
+    # TODO magari valutare i colpi dati ai nemici (da massimizzare) e minimizzare quelli andati a vuoto?
+    # TODO magari valutare i colpi presi dai nemici (da minimizzare, i.e., subirli più avanti in livelli più complessi)?
     return (gamerun.level - 1) * 100 + gamerun.alienkills * 10 + gamerun.spaceshipkills * 50  # + gamerun.frames // 1000
 
 
@@ -127,9 +127,9 @@ if __name__ == "__main__":
             print(f"\nBest fitness simulation:\n{best_fitness}")
 
             # TODO dump and store image only if it has a better fitness.
-            pickle.dump(winner, open(f"winner_{datetime.datetime.now().isoformat()}_fitness_{best_fitness}.pkl", "wb"))
-            pickle.dump(winner_net, open(f"winner_net_{datetime.datetime.now().isoformat()}_fitness_{best_fitness}.pkl", "wb"))
-            visualize.draw_net(config, winner, filename=f"winner_net_{datetime.datetime.now().isoformat()}_fitness_{best_fitness}", view=True)
+            pickle.dump(winner, open(f"winner_{datetime.datetime.now().isoformat()}_fitness_{winner.fitness}.pkl", "wb"))
+            pickle.dump(winner_net, open(f"winner_net_{datetime.datetime.now().isoformat()}_fitness_{winner.fitness}.pkl", "wb"))
+            visualize.draw_net(config, winner, filename=f"winner_net_{datetime.datetime.now().isoformat()}_fitness_{winner.fitness}", view=True)
             if show_game:
                 pygame.quit()
 
@@ -174,8 +174,8 @@ if __name__ == "__main__":
 
     elif args.run_best:
         # TODO load the one with better fitness
-        winner = pickle.load(open("winner_2022-06-14T10:40:33.929184_fitness_870.pkl", "rb"))
-        winner_net = pickle.load(open("winner_net_2022-06-14T10:40:33.930281_fitness_870.pkl", "rb"))
+        winner = pickle.load(open("winner_2022-06-14T18:05:32.569258_fitness_990.pkl", "rb"))
+        winner_net = pickle.load(open("winner_net_2022-06-14T18:05:32.570511_fitness_990.pkl", "rb"))
 
         show_game = True
         best_fitness = simulate_game(show_game=show_game, net=winner_net)

@@ -415,7 +415,7 @@ def generateLevel(win, number):
         alienlaserdamage += 1
         # alienvelocity += 0.1
         if show_game:
-            showLevel(win, level + 1, 'Alien health +2\nAlien laser damage +1')
+            showLevel(win, level + 1, 'Alien health +2 and Alien laser damage +1')
     elif levelcounter == 5:
         if show_game:
             showLevel(win, level + 1, 'Enemy spaceship attacks')
@@ -795,18 +795,18 @@ def run(win, net):
     #     keys[K_SPACE] = True
     # keys = pygame.key.get_pressed()
     # TODO here the NN should decide the move to do
-    aliens_x = [0, 0, 0]
+    aliens_x = [0, 0]
     for i, alien in enumerate(aliens):
-        if i < 4:
+        if i < 3:
             aliens_x[i] = alien.x
 
-    laser_x = [0, 0, 0, 0, 0]
-    laser_y = [0, 0, 0, 0, 0]
+    laser_x = [0, 0, 0, 0]
+    laser_y = [0, 0, 0, 0]
     # Give as input the 5 closer enemy lasers
     enemy_lasers_with_distance = [(laser, pow(pow(laser.x - battleship.x, 2) + pow(laser.x - battleship.x, 2), 1/2)) for laser in enemy_lasers]
     enemy_lasers_with_distance.sort(key=lambda x: x[1])
     for i, enemy_laser_with_distance in enumerate(enemy_lasers_with_distance):
-        if i < 6:
+        if i < 5:
             laser_x[i] = enemy_laser_with_distance[0].x
             laser_y[i] = enemy_laser_with_distance[0].y
 
@@ -816,13 +816,12 @@ def run(win, net):
             enemy_spaceships_x[i] = enemy_spaceship.x
 
     # TODO pass to the network relevant information as input
-    outputs = net.activate((battleship.x,
-                            aliens_x[0], aliens_x[1], aliens_x[2],
+    outputs = net.activate((battleship.x, battleship.vel, battleship.health,
+                            aliens_x[0], aliens_x[1],
                             laser_x[0], laser_y[0],
                             laser_x[1], laser_y[1],
                             laser_x[2], laser_y[2],
                             laser_x[3], laser_y[3],
-                            laser_x[4], laser_y[4],
                             enemy_spaceships_x[0]))
     i = np.argmax(np.array(outputs))
     keys = {
