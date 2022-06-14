@@ -174,8 +174,8 @@ if __name__ == "__main__":
 
     elif args.run_best:
         # TODO load the one with better fitness
-        winner = pickle.load(open("winner_2022-06-13T22:28:19.292459_fitness_779.pkl", "rb"))
-        winner_net = pickle.load(open("winner_net_2022-06-13T22:28:19.293457_fitness_779.pkl", "rb"))
+        winner = pickle.load(open("winner_2022-06-14T10:40:33.929184_fitness_870.pkl", "rb"))
+        winner_net = pickle.load(open("winner_net_2022-06-14T10:40:33.930281_fitness_870.pkl", "rb"))
 
         show_game = True
         best_fitness = simulate_game(show_game=show_game, net=winner_net)
