@@ -113,7 +113,11 @@ if __name__ == "__main__":
             p.add_reporter(stats)
 
             # Run NEAT for num_generations.
-            winner = p.run(eval_genomes, args.num_generations)
+            try:
+                winner = p.run(eval_genomes, args.num_generations)
+            except Exception as e:
+                print(e)
+                winner = p.best_genome
 
             # Display the winning genome.
             print(f"\nBest genome:\n{winner}")
@@ -136,46 +140,49 @@ if __name__ == "__main__":
         else:
             results = []
             best_fitnesses = []
-            for i in range(args.num_runs):
-                print(f"run {i + 1}/{args.num_runs}")
+            try:
+                for i in range(args.num_runs):
+                    print(f"run {i + 1}/{args.num_runs}")
 
-                # Create the population.
-                p = neat.Population(config)
+                    # Create the population.
+                    p = neat.Population(config)
 
-                # Add a stdout reporter to show progress in the terminal.
-                stats = neat.StatisticsReporter()
-                p.add_reporter(neat.StdOutReporter(True))
-                p.add_reporter(stats)
+                    # Add a stdout reporter to show progress in the terminal.
+                    stats = neat.StatisticsReporter()
+                    p.add_reporter(neat.StdOutReporter(True))
+                    p.add_reporter(stats)
 
-                # Run NEAT for num_generations.
-                winner = p.run(eval_genomes, args.num_generations)
+                    # Run NEAT for num_generations.
+                    winner = p.run(eval_genomes, args.num_generations)
 
-                # Display the winning genome.
-                print(f"\nBest genome:\n{winner}")
+                    # Display the winning genome.
+                    print(f"\nBest genome:\n{winner}")
 
-                # Store best fitness for statistical analysis.
-                best_fitnesses.append(winner.fitness)
+                    # Store best fitness for statistical analysis.
+                    best_fitnesses.append(winner.fitness)
 
-                # Create the winning network.
-                winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
+                    # Create the winning network.
+                    winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
 
-                # TODO dump and store image only if it has a better fitness.
-                pickle.dump(winner, open(f"winner_{datetime.datetime.now().isoformat()}_fitness_{winner.fitness}.pkl", "wb"))
-                pickle.dump(winner_net, open(f"winner_net_{datetime.datetime.now().isoformat()}_fitness_{winner.fitness}.pkl", "wb"))
-                visualize.draw_net(config, winner, filename=f"winner_net_{datetime.datetime.now().isoformat()}_fitness_{winner.fitness}", view=True)
+                    # TODO dump and store image only if it has a better fitness.
+                    pickle.dump(winner, open(f"winner_{datetime.datetime.now().isoformat()}_fitness_{winner.fitness}.pkl", "wb"))
+                    pickle.dump(winner_net, open(f"winner_net_{datetime.datetime.now().isoformat()}_fitness_{winner.fitness}.pkl", "wb"))
+                    visualize.draw_net(config, winner, filename=f"winner_net_{datetime.datetime.now().isoformat()}_fitness_{winner.fitness}", view=True)
+
+            except Exception as e:
+                print(e)
 
             results.append(best_fitnesses)
-
-            fig = figure('NEAT')
+            fig = figure("NEAT-Spaceship")
             ax = fig.gca()
             ax.boxplot(results)
-            ax.set_ylabel('Best fitness')
+            ax.set_ylabel("Best fitness")
             show()
 
     elif args.run_best:
         # TODO load the one with better fitness
-        winner = pickle.load(open("winner_2022-06-14T18:05:32.569258_fitness_990.pkl", "rb"))
-        winner_net = pickle.load(open("winner_net_2022-06-14T18:05:32.570511_fitness_990.pkl", "rb"))
+        winner = pickle.load(open("winner_2022-06-15T17:20:16.806985_fitness_1260.pkl", "rb"))
+        winner_net = pickle.load(open("winner_net_2022-06-15T17:20:16.807918_fitness_1260.pkl", "rb"))
 
         show_game = True
         best_fitness = simulate_game(show_game=show_game, net=winner_net)
