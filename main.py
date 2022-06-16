@@ -1,4 +1,5 @@
 from __future__ import print_function
+from fileinput import filename
 
 from pylab import *
 
@@ -12,6 +13,7 @@ import gamerun
 import visualize
 
 import argparse
+import traceback
 
 
 def simulate_game(show_game, net):
@@ -84,6 +86,35 @@ def eval_genomes(genomes, config):
         net = neat.nn.FeedForwardNetwork.create(genome, config)
         genome.fitness = simulate_game(show_game=False, net=net)
 
+def load_best():
+    genome, network = None, None
+    if os.path.isdir('runs/best/'):
+        for filename in os.listdir('runs/best/'):
+            if 'network' in filename:
+                network = pickle.load(open(f"runs/best/{filename}", "rb"))
+            elif 'genome' in filename:
+                genome = pickle.load(open(f"runs/best/{filename}", "rb"))
+
+    return genome, network
+
+def save_best(genome, network):
+    now = datetime.datetime.now().isoformat()
+    dirname = f"runs/{now}_fitness_{genome.fitness}"
+    os.mkdir(dirname)
+    pickle.dump(genome, open(f"{dirname}/genome.pkl", "wb"))
+    pickle.dump(network, open(f"{dirname}/network.pkl", "wb"))
+    visualize.draw_net(config, genome, filename=f"{dirname}/representation", view=False)
+
+    best_genome, _ = load_best()
+    if best_genome is None or best_genome.fitness < genome.fitness:
+        if not os.path.isdir('runs/best/'):
+            os.mkdir('runs/best/')
+
+        pickle.dump(genome, open(f"runs/best/genome.pkl", "wb"))
+        pickle.dump(network, open(f"runs/best/network.pkl", "wb"))
+        visualize.draw_net(config, genome, filename=f"runs/best/representation", view=False)
+
+
 
 if __name__ == "__main__":
 
@@ -114,26 +145,25 @@ if __name__ == "__main__":
 
             # Run NEAT for num_generations.
             try:
-                winner = p.run(eval_genomes, args.num_generations)
+                genome = p.run(eval_genomes, args.num_generations)
             except Exception as e:
-                print(e)
-                winner = p.best_genome
+                traceback.print_exc()
+                genome = p.best_genome
+            except KeyboardInterrupt:
+                genome = p.best_genome
 
             # Display the winning genome.
-            print(f"\nBest genome:\n{winner}")
+            print(f"\nBest genome:\n{genome}")
 
             # Create the winning network.
-            winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
+            network = neat.nn.FeedForwardNetwork.create(genome, config)
 
             # Simulate the game with the winning network and showing it.
             show_game = True
-            best_fitness = simulate_game(show_game=show_game, net=winner_net)
+            best_fitness = simulate_game(show_game=show_game, net=network)
             print(f"\nBest fitness simulation:\n{best_fitness}")
 
-            # TODO dump and store image only if it has a better fitness.
-            pickle.dump(winner, open(f"winner_{datetime.datetime.now().isoformat()}_fitness_{winner.fitness}.pkl", "wb"))
-            pickle.dump(winner_net, open(f"winner_net_{datetime.datetime.now().isoformat()}_fitness_{winner.fitness}.pkl", "wb"))
-            visualize.draw_net(config, winner, filename=f"winner_net_{datetime.datetime.now().isoformat()}_fitness_{winner.fitness}", view=True)
+            save_best(genome, network)
             if show_game:
                 pygame.quit()
 
@@ -153,21 +183,18 @@ if __name__ == "__main__":
                     p.add_reporter(stats)
 
                     # Run NEAT for num_generations.
-                    winner = p.run(eval_genomes, args.num_generations)
+                    genome = p.run(eval_genomes, args.num_generations)
 
                     # Display the winning genome.
-                    print(f"\nBest genome:\n{winner}")
+                    print(f"\nBest genome:\n{genome}")
 
                     # Store best fitness for statistical analysis.
-                    best_fitnesses.append(winner.fitness)
+                    best_fitnesses.append(genome.fitness)
 
                     # Create the winning network.
-                    winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
+                    network = neat.nn.FeedForwardNetwork.create(genome, config)
 
-                    # TODO dump and store image only if it has a better fitness.
-                    pickle.dump(winner, open(f"winner_{datetime.datetime.now().isoformat()}_fitness_{winner.fitness}.pkl", "wb"))
-                    pickle.dump(winner_net, open(f"winner_net_{datetime.datetime.now().isoformat()}_fitness_{winner.fitness}.pkl", "wb"))
-                    visualize.draw_net(config, winner, filename=f"winner_net_{datetime.datetime.now().isoformat()}_fitness_{winner.fitness}", view=True)
+                    save_best(genome, network)
 
             except Exception as e:
                 print(e)
@@ -180,12 +207,10 @@ if __name__ == "__main__":
             show()
 
     elif args.run_best:
-        # TODO load the one with better fitness
-        winner = pickle.load(open("winner_2022-06-15T17:20:16.806985_fitness_1260.pkl", "rb"))
-        winner_net = pickle.load(open("winner_net_2022-06-15T17:20:16.807918_fitness_1260.pkl", "rb"))
-
-        show_game = True
-        best_fitness = simulate_game(show_game=show_game, net=winner_net)
-        print(f"\nBest fitness simulation:\n{best_fitness}")
-        if show_game:
+        genome, network = load_best()
+        if network is None:
+            print("network not present")
+        else:
+            best_fitness = simulate_game(show_game=True, net=network)
+            print(f"\nBest fitness simulation:\n{best_fitness}")
             pygame.quit()
