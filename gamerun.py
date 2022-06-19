@@ -861,6 +861,7 @@ def run(win, net):
             K_SPACE: i == 1 or i == 3 or i == 5
         }
 
+
     if keys[K_LEFT]:
         if battleship.x > battleship.vel:
             battleship.x -= battleship.vel
