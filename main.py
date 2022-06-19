@@ -1,5 +1,4 @@
 from __future__ import print_function
-from fileinput import filename
 
 from pylab import *
 
@@ -34,7 +33,7 @@ def simulate_game(show_game, net):
         win = None
 
     gamerun.frames = 0
-    gamerun.seccount = 0
+    # gamerun.seccount = 0
     gamerun.totaltestseconds = 0
 
     gamerun.shootloop = 0
@@ -62,6 +61,12 @@ def simulate_game(show_game, net):
     gamerun.enemy_lasers = []
     gamerun.aliens = []
     gamerun.enemy_spaceships = []
+    gamerun.keys = {
+        gamerun.K_LEFT: False,
+        gamerun.K_RIGHT: False,
+        gamerun.K_SPACE: True
+    }
+    gamerun.battleship_healths = []
 
     game = True
     while game:
@@ -75,10 +80,23 @@ def simulate_game(show_game, net):
     #     s.save(gamerun.level, gamerun.alienkills, gamerun.spaceshipkills, gamerun.timee, gamerun.totaltestseconds)
 
     # TODO find the best fitness based on gamerun.level, gamerun.alienkills, gamerun.spaceshipkills, gamerun.frame
-    print(gamerun.level, gamerun.alienkills, gamerun.spaceshipkills)  # , gamerun.frames)  # TODO valutare se rimuove il numero di frame dal fitness? (kind of penalty for escaping?)
+    # fitness = (gamerun.level - 1) * 100 + gamerun.alienkills * 10 + gamerun.spaceshipkills * 50 # - gamerun.frames // 100000
+    
+    # health_fitness = 0
+    # h_prec = gamerun.battleship_healths[0]
+    # for i, h in enumerate(gamerun.battleship_healths[1:]):
+    #     health_fitness += (h_prec - h)**2
+    # health_fitness += gamerun.battleship_healths[-1]**2
+    # health_fitness /= 10.0
+
+    fitness = gamerun.alienkills * 10 + gamerun.spaceshipkills * 50
+    # fitness = gamerun.alienkills * 100 + gamerun.spaceshipkills * 500 - gamerun.frames / 10000.0 - health_fitness
+    # fitness = gamerun.frames
+
+    print(f"{fitness} -> {gamerun.level} {gamerun.alienkills} {gamerun.spaceshipkills} {gamerun.frames} {gamerun.battleship_healths}")  # TODO valutare se rimuove il numero di frame dal fitness? (kind of penalty for escaping?)
     # TODO magari valutare i colpi dati ai nemici (da massimizzare) e minimizzare quelli andati a vuoto?
     # TODO magari valutare i colpi presi dai nemici (da minimizzare, i.e., subirli più avanti in livelli più complessi)?
-    return (gamerun.level - 1) * 100 + gamerun.alienkills * 10 + gamerun.spaceshipkills * 50  # + gamerun.frames // 1000
+    return fitness
 
 
 def eval_genomes(genomes, config):
@@ -98,7 +116,7 @@ def load_best():
     return genome, network
 
 def save_best(genome, network):
-    now = datetime.datetime.now().isoformat()
+    now = f"{datetime.datetime.now().isoformat()}".replace(':','.')
     dirname = f"runs/{now}_fitness_{genome.fitness}"
     os.mkdir(dirname)
     pickle.dump(genome, open(f"{dirname}/genome.pkl", "wb"))
