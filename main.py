@@ -139,6 +139,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="NEAT Spaceship")
     parser.add_argument("--run_best", action="store_true", help="Run the best individual found")
     parser.add_argument("--neat", action="store_true", help="Run the NEAT algorithm for training of the NN")
+    parser.add_argument("--gp", action="store_true", help="Run the GP algorithm for training")
     parser.add_argument("--config_file", type=str, default="config.txt", help="Run the NEAT algorithm for training of the NN")
     parser.add_argument("--num_runs", type=int, default=1, help="The number of runs")
     parser.add_argument("--num_generations", type=int, default=10, help="The number of generations for each run")

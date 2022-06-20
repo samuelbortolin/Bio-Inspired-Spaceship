@@ -755,7 +755,7 @@ def run(win, net):
 
 
     if show_game:
-        clock.tick(200)
+        clock.tick(600)
 
     # seccount+=1
     # if seccount==60:
