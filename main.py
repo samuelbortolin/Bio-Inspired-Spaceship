@@ -1,21 +1,100 @@
 from __future__ import print_function
 
+from deap import algorithms
+from deap import base
+from deap import creator
+from deap import tools
+from deap import gp
+
 from pylab import *
 
 import os
 import pickle
+import operator
 
 import neat
 import pygame
+import numpy
 
 import gamerun
+import plot_utils
 import visualize
 
 import argparse
 import traceback
 
+from gp_train import AgentSimulator, exec2, exec3, exec_while, if_then_else
 
-def simulate_game(show_game, net):
+
+def f1():
+    return pset.addTerminal(gamerun.battleship.x)
+
+
+def f2():
+    return pset.addTerminal(gamerun.battleship.vel)
+
+
+def f3():
+    return pset.addTerminal(gamerun.battleship.health)
+
+
+def f4():
+    return pset.addTerminal(gamerun.aliens_x[0])
+
+
+def f5():
+    return pset.addTerminal(gamerun.aliens_x[1])
+
+
+def f6():
+    return pset.addTerminal(gamerun.laser_x[0])
+
+
+def f7():
+    return pset.addTerminal(gamerun.laser_y[0])
+
+
+def f8():
+    return pset.addTerminal(gamerun.laser_x[1])
+
+
+def f9():
+    return pset.addTerminal(gamerun.laser_y[1])
+
+
+def f10():
+    return pset.addTerminal(gamerun.laser_x[2])
+
+
+def f11():
+    return pset.addTerminal(gamerun.laser_y[2])
+
+
+def f12():
+    return pset.addTerminal(gamerun.laser_x[3])
+
+
+def f13():
+    return pset.addTerminal(gamerun.laser_y[3])
+
+
+def f14():
+    return pset.addTerminal(gamerun.laser_x[4])
+
+
+def f15():
+    return pset.addTerminal(gamerun.laser_y[4])
+
+
+def f16():
+    return pset.addTerminal(gamerun.laser_x[5])
+
+
+def f17():
+    return pset.addTerminal(gamerun.laser_y[5])
+
+
+def simulate_game(show_game, net=None, program=None, routine=None):
     gamerun.show_game = show_game
     if gamerun.show_game:
         pygame.init()
@@ -67,10 +146,14 @@ def simulate_game(show_game, net):
         gamerun.K_SPACE: True
     }
     gamerun.battleship_healths = []
+    gamerun.aliens_x = [0, 0, 0]
+    gamerun.laser_x = [0, 0, 0, 0, 0, 0]
+    gamerun.laser_y = [0, 0, 0, 0, 0, 0]
+    gamerun.enemy_spaceships_x = [0]
 
     game = True
     while game:
-        result = gamerun.run(win, net)
+        result = gamerun.run(win, net=net, program=program, routine=routine)
         if result == 0:
             game = False
 
@@ -97,12 +180,21 @@ def simulate_game(show_game, net):
     # TODO magari valutare i colpi dati ai nemici (da massimizzare) e minimizzare quelli andati a vuoto?
     # TODO magari valutare i colpi presi dai nemici (da minimizzare, i.e., subirli più avanti in livelli più complessi)?
     return fitness
+    # TODO reason if makes sense to have a stopping criterion related to time (and not only death) --> this will be translated in find the best score for the considered max time
 
 
 def eval_genomes(genomes, config):
     for genome_id, genome in genomes:
         net = neat.nn.FeedForwardNetwork.create(genome, config)
         genome.fitness = simulate_game(show_game=False, net=net)
+
+
+def evalArtificialAgent(individual):
+    # Transform the tree expression to functionnal Python code
+    routine = gp.compile(individual, pset)
+    # Run the generated routine
+    return simulate_game(show_game=False, program=agent, routine=routine),
+
 
 def load_best():
     genome, network = None, None
@@ -115,8 +207,9 @@ def load_best():
 
     return genome, network
 
+
 def save_best(genome, network):
-    now = f"{datetime.datetime.now().isoformat()}".replace(':','.')
+    now = f"{datetime.datetime.now().isoformat()}".replace(':', '.')
     dirname = f"runs/{now}_fitness_{genome.fitness}"
     os.mkdir(dirname)
     pickle.dump(genome, open(f"{dirname}/genome.pkl", "wb"))
@@ -133,26 +226,30 @@ def save_best(genome, network):
         visualize.draw_net(config, genome, filename=f"runs/best/representation", view=False)
 
 
+GP_POP_SIZE = 50               # population size for GP
+GP_NGEN = 50                    # number of generations for GP
+GP_CXPB, GP_MUTPB = 0.5, 0.2    # crossover and mutation probability for GP
+GP_TRNMT_SIZE = 7               # tournament size for GP
+GP_HOF_SIZE = 2                 # size of the Hall-of-Fame for GP
+
 
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="NEAT Spaceship")
     parser.add_argument("--run_best", action="store_true", help="Run the best individual found")
     parser.add_argument("--neat", action="store_true", help="Run the NEAT algorithm for training of the NN")
-    parser.add_argument("--gp", action="store_true", help="Run the GP algorithm for training")
+    parser.add_argument("--gp", action="store_true", help="Run the GP algorithm for finding a program")
     parser.add_argument("--config_file", type=str, default="config.txt", help="Run the NEAT algorithm for training of the NN")
     parser.add_argument("--num_runs", type=int, default=1, help="The number of runs")
     parser.add_argument("--num_generations", type=int, default=10, help="The number of generations for each run")
     args = parser.parse_args()
 
-    # TODO we should also test GP and compare it with NEAT
-
-    # Load configuration.
-    local_dir = os.path.dirname(__file__)
-    config_file = os.path.join(local_dir, args.config_file)
-    config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet, neat.DefaultStagnation, config_file)
-
     if args.neat:
+        # Load configuration.
+        local_dir = os.path.dirname(__file__)
+        config_file = os.path.join(local_dir, args.config_file)
+        config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet, neat.DefaultStagnation, config_file)
+
         if args.num_runs == 1:
             # Create the population.
             p = neat.Population(config)
@@ -225,7 +322,80 @@ if __name__ == "__main__":
             ax.set_ylabel("Best fitness")
             show()
 
-    elif args.run_best:
+    if args.gp:
+        agent = AgentSimulator()
+
+        pset = gp.PrimitiveSet("MAIN", 0)
+        pset.addPrimitive(if_then_else, 3)
+        # pset.addPrimitive(operator.add, 2)
+        # pset.addPrimitive(operator.sub, 2)
+        # pset.addPrimitive(operator.gt, 2)
+        # pset.addPrimitive(operator.eq, 2)
+        pset.addPrimitive(exec2, 2)
+        pset.addPrimitive(exec3, 3)
+        pset.addPrimitive(exec_while, 2)
+        pset.addTerminal(agent.action_left)
+        pset.addTerminal(agent.action_left_and_fire)
+        pset.addTerminal(agent.action_still)
+        pset.addTerminal(agent.action_still_and_fire)
+        pset.addTerminal(agent.action_right)
+        pset.addTerminal(agent.action_right_and_fire)
+        # TODO probably we should teach the program how to use the terminal set (if it does not manage to learn it by itself)
+        pset.addTerminal(f1)
+        pset.addTerminal(f2)
+        pset.addTerminal(f3)
+        pset.addTerminal(f4)
+        pset.addTerminal(f5)
+        pset.addTerminal(f6)
+        pset.addTerminal(f7)
+        pset.addTerminal(f8)
+        pset.addTerminal(f9)
+        pset.addTerminal(f10)
+        pset.addTerminal(f11)
+        pset.addTerminal(f12)
+        pset.addTerminal(f13)
+        pset.addTerminal(f14)
+        pset.addTerminal(f15)
+        pset.addTerminal(f16)
+        pset.addTerminal(f17)
+        creator.create("FitnessMax", base.Fitness, weights=(1.0,))
+        creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMax)
+
+        toolbox = base.Toolbox()
+
+        # Attribute generator
+        toolbox.register("expr_init", gp.genFull, pset=pset, min_=1, max_=2)
+
+        # Structure initializers
+        toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.expr_init)
+        toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+        toolbox.register("evaluate", evalArtificialAgent)
+        toolbox.register("select", tools.selTournament, tournsize=GP_TRNMT_SIZE)
+        toolbox.register("mate", gp.cxOnePoint)
+        toolbox.register("expr_mut", gp.genFull, min_=0, max_=2)
+        toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
+        pop = toolbox.population(n=GP_POP_SIZE)
+        hof = tools.HallOfFame(GP_HOF_SIZE)
+        stats = tools.Statistics(lambda ind: ind.fitness.values)
+        stats.register("avg", numpy.mean)
+        stats.register("std", numpy.std)
+        stats.register("min", numpy.min)
+        stats.register("max", numpy.max)
+
+        final_pop, logbook = algorithms.eaSimple(pop, toolbox, GP_CXPB, GP_MUTPB, GP_NGEN, stats, halloffame=hof)
+
+        # plot GP tree
+        nodes, edges, labels = gp.graph(hof[0])
+        plot_utils.plotTree(nodes, edges, labels, "best", 'results')
+
+        # plot fitness trends
+        plot_utils.plotTrends(logbook, "best", 'results')
+
+        # --------------------------------------------------------------------
+
+        print("Best individual GP is %s, %s" % (hof[0], hof[0].fitness.values))
+
+    if args.run_best:
         genome, network = load_best()
         if network is None:
             print("network not present")

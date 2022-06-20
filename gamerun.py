@@ -728,9 +728,19 @@ aliens = []
 enemy_spaceships = []
 tick_time = time.time()
 K_LEFT, K_RIGHT, K_SPACE = 1073741904, 1073741903, 32
+keys = {
+    K_LEFT: False,
+    K_RIGHT: False,
+    K_SPACE: True
+}
 battleship_healths = []
+aliens_x = [0, 0, 0]
+laser_x = [0, 0, 0, 0, 0, 0]
+laser_y = [0, 0, 0, 0, 0, 0]
+enemy_spaceships_x = [0]
 
-def run(win, net):
+
+def run(win, net=None, program=None, routine=None):
     global alienkills
     global spaceshipkills
     global battleship
@@ -746,6 +756,10 @@ def run(win, net):
     global timee
     global keys
     global battleship_healths
+    global aliens_x
+    global laser_x
+    global laser_y
+    global enemy_spaceships_x
 
     frames += 1
 
@@ -822,7 +836,6 @@ def run(win, net):
         #     K_SPACE: True
         # }
 
-
         aliens_x = [0, 0, 0]
         for a, alien in enumerate(aliens):
             if a < 3:
@@ -844,23 +857,27 @@ def run(win, net):
                 enemy_spaceships_x[s] = enemy_spaceship.x
 
         # TODO pass to the network relevant information as input
-        outputs = net.activate((battleship.x, battleship.vel, battleship.health,
-                                aliens_x[0], aliens_x[1],
-                                laser_x[0], laser_y[0],
-                                laser_x[1], laser_y[1],
-                                laser_x[2], laser_y[2],
-                                laser_x[3], laser_y[3],
-                                laser_x[4], laser_y[4],
-                                laser_x[5], laser_y[5],
-                                enemy_spaceships_x[0]))
+        if net:
+            outputs = net.activate((battleship.x, battleship.vel, battleship.health,
+                                    aliens_x[0], aliens_x[1],
+                                    laser_x[0], laser_y[0],
+                                    laser_x[1], laser_y[1],
+                                    laser_x[2], laser_y[2],
+                                    laser_x[3], laser_y[3],
+                                    laser_x[4], laser_y[4],
+                                    laser_x[5], laser_y[5],
+                                    enemy_spaceships_x[0]))
 
-        i = np.argmax(np.array(outputs))
-        keys = {
-            K_LEFT: i == 0 or i == 1,
-            K_RIGHT: i == 4 or i == 5,
-            K_SPACE: i == 1 or i == 3 or i == 5
-        }
+            i = np.argmax(np.array(outputs))
+            keys = {
+                K_LEFT: i == 0 or i == 1,
+                K_RIGHT: i == 4 or i == 5,
+                K_SPACE: i == 1 or i == 3 or i == 5
+            }
 
+        if program:
+            program.run(routine)
+            keys = program.keys
 
     if keys[K_LEFT]:
         if battleship.x > battleship.vel:
