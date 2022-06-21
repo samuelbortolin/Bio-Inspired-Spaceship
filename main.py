@@ -23,75 +23,75 @@ import visualize
 import argparse
 import traceback
 
-from gp_train import AgentSimulator, exec2, exec3, exec_while, if_then_else
+from gp_train import AgentSimulator, eval_function, laser_distance, exec2, exec3, if_then_else
 
 
-def f1():
-    return pset.addTerminal(gamerun.battleship.x)
+# def f1():
+#     return pset.addTerminal(gamerun.battleship.x)
 
 
-def f2():
-    return pset.addTerminal(gamerun.battleship.vel)
+# def f2():
+#     return pset.addTerminal(gamerun.battleship.vel)
 
 
-def f3():
-    return pset.addTerminal(gamerun.battleship.health)
+# def f3():
+#     return pset.addTerminal(gamerun.battleship.health)
 
 
-def f4():
-    return pset.addTerminal(gamerun.aliens_x[0])
+# def f4():
+#     return pset.addTerminal(gamerun.aliens_x[0])
 
 
-def f5():
-    return pset.addTerminal(gamerun.aliens_x[1])
+# def f5():
+#     return pset.addTerminal(gamerun.aliens_x[1])
 
 
-def f6():
-    return pset.addTerminal(gamerun.laser_x[0])
+# def f6():
+#     return pset.addTerminal(gamerun.laser_x[0])
 
 
-def f7():
-    return pset.addTerminal(gamerun.laser_y[0])
+# def f7():
+#     return pset.addTerminal(gamerun.laser_y[0])
 
 
-def f8():
-    return pset.addTerminal(gamerun.laser_x[1])
+# def f8():
+#     return pset.addTerminal(gamerun.laser_x[1])
 
 
-def f9():
-    return pset.addTerminal(gamerun.laser_y[1])
+# def f9():
+#     return pset.addTerminal(gamerun.laser_y[1])
 
 
-def f10():
-    return pset.addTerminal(gamerun.laser_x[2])
+# def f10():
+#     return pset.addTerminal(gamerun.laser_x[2])
 
 
-def f11():
-    return pset.addTerminal(gamerun.laser_y[2])
+# def f11():
+#     return pset.addTerminal(gamerun.laser_y[2])
 
 
-def f12():
-    return pset.addTerminal(gamerun.laser_x[3])
+# def f12():
+#     return pset.addTerminal(gamerun.laser_x[3])
 
 
-def f13():
-    return pset.addTerminal(gamerun.laser_y[3])
+# def f13():
+#     return pset.addTerminal(gamerun.laser_y[3])
 
 
-def f14():
-    return pset.addTerminal(gamerun.laser_x[4])
+# def f14():
+#     return pset.addTerminal(gamerun.laser_x[4])
 
 
-def f15():
-    return pset.addTerminal(gamerun.laser_y[4])
+# def f15():
+#     return pset.addTerminal(gamerun.laser_y[4])
 
 
-def f16():
-    return pset.addTerminal(gamerun.laser_x[5])
+# def f16():
+#     return pset.addTerminal(gamerun.laser_x[5])
 
 
-def f17():
-    return pset.addTerminal(gamerun.laser_y[5])
+# def f17():
+#     return pset.addTerminal(gamerun.laser_y[5])
 
 
 def simulate_game(show_game, net=None, program=None, routine=None):
@@ -227,7 +227,7 @@ def save_best(genome, network):
 
 
 GP_POP_SIZE = 50               # population size for GP
-GP_NGEN = 50                    # number of generations for GP
+GP_NGEN = 10                    # number of generations for GP
 GP_CXPB, GP_MUTPB = 0.5, 0.2    # crossover and mutation probability for GP
 GP_TRNMT_SIZE = 7               # tournament size for GP
 GP_HOF_SIZE = 2                 # size of the Hall-of-Fame for GP
@@ -325,39 +325,57 @@ if __name__ == "__main__":
     if args.gp:
         agent = AgentSimulator()
 
-        pset = gp.PrimitiveSet("MAIN", 0)
-        pset.addPrimitive(if_then_else, 3)
+        pset = gp.PrimitiveSetTyped("MAIN", [float]*17, bool)
+        pset.addPrimitive(if_then_else, [bool, float, float], float)
         # pset.addPrimitive(operator.add, 2)
         # pset.addPrimitive(operator.sub, 2)
-        # pset.addPrimitive(operator.gt, 2)
-        # pset.addPrimitive(operator.eq, 2)
-        pset.addPrimitive(exec2, 2)
-        pset.addPrimitive(exec3, 3)
-        pset.addPrimitive(exec_while, 2)
-        pset.addTerminal(agent.action_left)
-        pset.addTerminal(agent.action_left_and_fire)
-        pset.addTerminal(agent.action_still)
-        pset.addTerminal(agent.action_still_and_fire)
-        pset.addTerminal(agent.action_right)
-        pset.addTerminal(agent.action_right_and_fire)
-        # TODO probably we should teach the program how to use the terminal set (if it does not manage to learn it by itself)
-        pset.addTerminal(f1)
-        pset.addTerminal(f2)
-        pset.addTerminal(f3)
-        pset.addTerminal(f4)
-        pset.addTerminal(f5)
-        pset.addTerminal(f6)
-        pset.addTerminal(f7)
-        pset.addTerminal(f8)
-        pset.addTerminal(f9)
-        pset.addTerminal(f10)
-        pset.addTerminal(f11)
-        pset.addTerminal(f12)
-        pset.addTerminal(f13)
-        pset.addTerminal(f14)
-        pset.addTerminal(f15)
-        pset.addTerminal(f16)
-        pset.addTerminal(f17)
+        pset.addPrimitive(operator.gt, [float, float], bool)
+        pset.addPrimitive(operator.eq, [float, float], bool)
+        pset.addPrimitive(operator.neg, [bool], bool)
+        pset.addPrimitive(operator.add, [float, float], float)
+        pset.addPrimitive(operator.sub, [float, float], float)
+        pset.addPrimitive(operator.mul, [float, float], float)
+
+        # pset.addPrimitive(eval_function, [dict], float)
+        # pset.addPrimitive(exec2, 2)
+        # pset.addPrimitive(exec3, 3)
+        # pset.addPrimitive(exec_while, 2)
+        # pset.addTerminal(agent.action_left)
+        # pset.addTerminal(agent.action_left_and_fire)
+        # pset.addTerminal(agent.action_still)
+        # pset.addTerminal(agent.action_still_and_fire)
+        # pset.addTerminal(agent.action_right)
+        # pset.addTerminal(agent.action_right_and_fire)
+        # pset.addTerminal(laser_distance, dict)
+        pset.addTerminal(5.0, float)
+        pset.addTerminal(10.0, float)
+        pset.addTerminal(15.0, float)
+        pset.addTerminal(20.0, float)
+        pset.addTerminal(25.0, float)
+        pset.addTerminal(30.0, float)
+        pset.addTerminal(35.0, float)
+        pset.addTerminal(40.0, float)
+        pset.addTerminal(True, bool)
+        pset.addTerminal(False, bool)
+
+        # # TODO probably we should teach the program how to use the terminal set (if it does not manage to learn it by itself)
+        # pset.addTerminal(f1)
+        # pset.addTerminal(f2)
+        # pset.addTerminal(f3)
+        # pset.addTerminal(f4)
+        # pset.addTerminal(f5)
+        # pset.addTerminal(f6)
+        # pset.addTerminal(f7)
+        # pset.addTerminal(f8)
+        # pset.addTerminal(f9)
+        # pset.addTerminal(f10)
+        # pset.addTerminal(f11)
+        # pset.addTerminal(f12)
+        # pset.addTerminal(f13)
+        # pset.addTerminal(f14)
+        # pset.addTerminal(f15)
+        # pset.addTerminal(f16)
+        # pset.addTerminal(f17)
         creator.create("FitnessMax", base.Fitness, weights=(1.0,))
         creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMax)
 
@@ -393,7 +411,11 @@ if __name__ == "__main__":
 
         # --------------------------------------------------------------------
 
-        print("Best individual GP is %s, %s" % (hof[0], hof[0].fitness.values))
+        print("Best individual GP is %s, fitness %s" % (hof[0], hof[0].fitness.values))
+
+        routine = gp.compile(hof[0], pset)
+        simulate_game(show_game=True, program=agent, routine=routine),
+
 
     if args.run_best:
         genome, network = load_best()
@@ -403,3 +425,4 @@ if __name__ == "__main__":
             best_fitness = simulate_game(show_game=True, net=network)
             print(f"\nBest fitness simulation:\n{best_fitness}")
             pygame.quit()
+
