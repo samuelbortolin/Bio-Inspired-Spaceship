@@ -837,9 +837,11 @@ def run(win, net=None, program=None, routine=None):
         # }
 
         aliens_x = [0, 0, 0]
+        aliens_y = [0, 0, 0]
         for a, alien in enumerate(aliens):
             if a < 3:
                 aliens_x[a] = alien.x
+                aliens_y[a] = alien.y
 
         laser_x = [0, 0, 0, 0, 0, 0]
         laser_y = [0, 0, 0, 0, 0, 0]
@@ -852,9 +854,11 @@ def run(win, net=None, program=None, routine=None):
                 laser_y[e] = enemy_laser_with_distance[0].y
 
         enemy_spaceships_x = [0]
+        enemy_spaceships_y = [0]
         for s, enemy_spaceship in enumerate(enemy_spaceships):
             if s < 1:
                 enemy_spaceships_x[s] = enemy_spaceship.x
+                enemy_spaceships_y[s] = enemy_spaceship.y
 
         # TODO pass to the network relevant information as input
         if net:
@@ -876,7 +880,32 @@ def run(win, net=None, program=None, routine=None):
             }
 
         if program:
-            program.run(routine)
+            program.run(routine, 
+                battleship.x,
+                # battleship.y,
+                battleship.vel,
+                # battleship.health,
+                aliens_x[0],
+                # aliens_y[0],
+                aliens_x[1],
+                # aliens_y[1],
+                laser_x[0],
+                laser_y[0],
+                laser_x[1],
+                laser_y[1],
+                # laser_x[2],
+                # laser_y[2],
+                # laser_x[3],
+                # laser_y[3],
+                # laser_x[4],
+                # laser_y[4],
+                # laser_x[5],
+                # laser_y[5],
+                enemy_lasers_with_distance[0][1] if len(enemy_lasers_with_distance)>0 else 999999,
+                enemy_lasers_with_distance[0][1] if len(enemy_lasers_with_distance)>1 else 999999,
+                enemy_spaceships_x[0],
+                # enemy_spaceships_y[0],
+            )
             keys = program.keys
 
     if keys[K_LEFT]:

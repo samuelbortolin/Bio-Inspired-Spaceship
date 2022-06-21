@@ -42,27 +42,8 @@ class AgentSimulator(object):
         self.keys[gamerun.K_RIGHT] = True
         self.keys[gamerun.K_SPACE] = True
 
-    def run(self, routine):
-        direction = routine(
-            gamerun.battleship.x,
-            gamerun.battleship.vel,
-            # gamerun.battleship.health,
-            gamerun.aliens_x[0],
-            gamerun.aliens_x[1],
-            gamerun.laser_x[0],
-            gamerun.laser_y[0],
-            gamerun.laser_x[1],
-            gamerun.laser_y[1],
-            gamerun.laser_x[2],
-            gamerun.laser_y[2],
-            gamerun.laser_x[3],
-            gamerun.laser_y[3],
-            gamerun.laser_x[4],
-            gamerun.laser_y[4],
-            gamerun.laser_x[5],
-            gamerun.laser_y[5],
-            gamerun.enemy_spaceships_x[0]
-        )
+    def run(self, routine, *args):
+        direction = routine(*args)
 
         self.keys[gamerun.K_LEFT] = direction
         self.keys[gamerun.K_RIGHT] = not direction

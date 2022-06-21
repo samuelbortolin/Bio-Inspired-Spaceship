@@ -26,74 +26,6 @@ import traceback
 from gp_train import AgentSimulator, eval_function, laser_distance, exec2, exec3, if_then_else
 
 
-# def f1():
-#     return pset.addTerminal(gamerun.battleship.x)
-
-
-# def f2():
-#     return pset.addTerminal(gamerun.battleship.vel)
-
-
-# def f3():
-#     return pset.addTerminal(gamerun.battleship.health)
-
-
-# def f4():
-#     return pset.addTerminal(gamerun.aliens_x[0])
-
-
-# def f5():
-#     return pset.addTerminal(gamerun.aliens_x[1])
-
-
-# def f6():
-#     return pset.addTerminal(gamerun.laser_x[0])
-
-
-# def f7():
-#     return pset.addTerminal(gamerun.laser_y[0])
-
-
-# def f8():
-#     return pset.addTerminal(gamerun.laser_x[1])
-
-
-# def f9():
-#     return pset.addTerminal(gamerun.laser_y[1])
-
-
-# def f10():
-#     return pset.addTerminal(gamerun.laser_x[2])
-
-
-# def f11():
-#     return pset.addTerminal(gamerun.laser_y[2])
-
-
-# def f12():
-#     return pset.addTerminal(gamerun.laser_x[3])
-
-
-# def f13():
-#     return pset.addTerminal(gamerun.laser_y[3])
-
-
-# def f14():
-#     return pset.addTerminal(gamerun.laser_x[4])
-
-
-# def f15():
-#     return pset.addTerminal(gamerun.laser_y[4])
-
-
-# def f16():
-#     return pset.addTerminal(gamerun.laser_x[5])
-
-
-# def f17():
-#     return pset.addTerminal(gamerun.laser_y[5])
-
-
 def simulate_game(show_game, net=None, program=None, routine=None):
     gamerun.show_game = show_game
     if gamerun.show_game:
@@ -172,7 +104,7 @@ def simulate_game(show_game, net=None, program=None, routine=None):
     # health_fitness += gamerun.battleship_healths[-1]**2
     # health_fitness /= 10.0
 
-    fitness = gamerun.alienkills * 10 + gamerun.spaceshipkills * 50
+    fitness = gamerun.alienkills * 10 + gamerun.spaceshipkills * 50 + gamerun.battleship_healths[-1]/10.0
     # fitness = gamerun.alienkills * 100 + gamerun.spaceshipkills * 500 - gamerun.frames / 10000.0 - health_fitness
     # fitness = gamerun.frames
 
@@ -226,8 +158,8 @@ def save_best(genome, network):
         visualize.draw_net(config, genome, filename=f"runs/best/representation", view=False)
 
 
-GP_POP_SIZE = 50               # population size for GP
-GP_NGEN = 10                    # number of generations for GP
+GP_POP_SIZE = 50                # population size for GP
+GP_NGEN = 20                    # number of generations for GP
 GP_CXPB, GP_MUTPB = 0.5, 0.2    # crossover and mutation probability for GP
 GP_TRNMT_SIZE = 7               # tournament size for GP
 GP_HOF_SIZE = 2                 # size of the Hall-of-Fame for GP
@@ -325,12 +257,14 @@ if __name__ == "__main__":
     if args.gp:
         agent = AgentSimulator()
 
-        pset = gp.PrimitiveSetTyped("MAIN", [float]*17, bool)
+        pset = gp.PrimitiveSetTyped("MAIN", [float]*11, bool)
         pset.addPrimitive(if_then_else, [bool, float, float], float)
         # pset.addPrimitive(operator.add, 2)
         # pset.addPrimitive(operator.sub, 2)
         pset.addPrimitive(operator.gt, [float, float], bool)
         pset.addPrimitive(operator.eq, [float, float], bool)
+        pset.addPrimitive(operator.and_, [bool, bool], bool)
+        pset.addPrimitive(operator.or_, [bool, bool], bool)
         pset.addPrimitive(operator.neg, [bool], bool)
         pset.addPrimitive(operator.add, [float, float], float)
         pset.addPrimitive(operator.sub, [float, float], float)
