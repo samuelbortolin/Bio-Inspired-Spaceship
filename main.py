@@ -23,7 +23,7 @@ import visualize
 import argparse
 import traceback
 
-from gp_train import AgentSimulator, eval_function, laser_distance, exec2, exec3, if_then_else
+from gp_train import AgentSimulator, if_then_else
 
 
 def simulate_game(show_game, net=None, program=None, routine=None):
@@ -108,11 +108,12 @@ def simulate_game(show_game, net=None, program=None, routine=None):
     # fitness = gamerun.alienkills * 100 + gamerun.spaceshipkills * 500 - gamerun.frames / 10000.0 - health_fitness
     # fitness = gamerun.frames
 
-    print(f"{fitness} -> {gamerun.level} {gamerun.alienkills} {gamerun.spaceshipkills} {gamerun.frames} {gamerun.battleship_healths}")  # TODO valutare se rimuove il numero di frame dal fitness? (kind of penalty for escaping?)
+    print(f"{fitness} -> {gamerun.level} {gamerun.alienkills} {gamerun.spaceshipkills} {gamerun.frames} {gamerun.battleship_healths}")
+    # TODO valutare se rimuove il numero di frame dal fitness? (kind of penalty for escaping?)
     # TODO magari valutare i colpi dati ai nemici (da massimizzare) e minimizzare quelli andati a vuoto?
     # TODO magari valutare i colpi presi dai nemici (da minimizzare, i.e., subirli più avanti in livelli più complessi)?
-    return fitness
     # TODO reason if makes sense to have a stopping criterion related to time (and not only death) --> this will be translated in find the best score for the considered max time
+    return fitness
 
 
 def eval_genomes(genomes, config):
@@ -128,7 +129,7 @@ def evalArtificialAgent(individual):
     return simulate_game(show_game=False, program=agent, routine=routine),
 
 
-def load_best():
+def load_best_neat():
     genome, network = None, None
     if os.path.isdir('runs/best/'):
         for filename in os.listdir('runs/best/'):
@@ -140,7 +141,7 @@ def load_best():
     return genome, network
 
 
-def save_best(genome, network):
+def save_best_neat(genome, network):
     now = f"{datetime.datetime.now().isoformat()}".replace(':', '.')
     dirname = f"runs/{now}_fitness_{genome.fitness}"
     os.mkdir(dirname)
@@ -148,7 +149,7 @@ def save_best(genome, network):
     pickle.dump(network, open(f"{dirname}/network.pkl", "wb"))
     visualize.draw_net(config, genome, filename=f"{dirname}/representation", view=False)
 
-    best_genome, _ = load_best()
+    best_genome, _ = load_best_neat()
     if best_genome is None or best_genome.fitness < genome.fitness:
         if not os.path.isdir('runs/best/'):
             os.mkdir('runs/best/')
@@ -156,6 +157,36 @@ def save_best(genome, network):
         pickle.dump(genome, open(f"runs/best/genome.pkl", "wb"))
         pickle.dump(network, open(f"runs/best/network.pkl", "wb"))
         visualize.draw_net(config, genome, filename=f"runs/best/representation", view=False)
+
+
+def load_best_gp():
+    program = None
+    if os.path.isdir('results/best/'):
+        for filename in os.listdir('results/best/'):
+            if 'program' in filename:
+                program = pickle.load(open(f"results/best/{filename}", "rb"))
+
+    return program
+
+
+def save_best_gp(program):
+    now = f"{datetime.datetime.now().isoformat()}".replace(':', '.')
+    dirname = f"results/{now}_fitness_{program.fitness.values[0]}"
+    os.mkdir(dirname)
+    pickle.dump(program, open(f"{dirname}/program.pkl", "wb"))
+    nodes, edges, labels = gp.graph(hof[0])
+    plot_utils.plotTree(nodes, edges, labels, "best", dirname)
+    plot_utils.plotTrends(logbook, "best", dirname)
+
+    best_program = load_best_gp()
+    if best_program is None or best_program.fitness.values[0] < program.fitness.values[0]:
+        if not os.path.isdir('results/best/'):
+            os.mkdir('results/best/')
+
+        pickle.dump(program, open(f"results/best/program.pkl", "wb"))
+        nodes, edges, labels = gp.graph(hof[0])
+        plot_utils.plotTree(nodes, edges, labels, "best", 'results/best')
+        plot_utils.plotTrends(logbook, "best", 'results/best')
 
 
 GP_POP_SIZE = 50                # population size for GP
@@ -168,7 +199,8 @@ GP_HOF_SIZE = 2                 # size of the Hall-of-Fame for GP
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="NEAT Spaceship")
-    parser.add_argument("--run_best", action="store_true", help="Run the best individual found")
+    parser.add_argument("--run_best_neat", action="store_true", help="Run the best individual found using NEAT")
+    parser.add_argument("--run_best_gp", action="store_true", help="Run the best individual found using GP")
     parser.add_argument("--neat", action="store_true", help="Run the NEAT algorithm for training of the NN")
     parser.add_argument("--gp", action="store_true", help="Run the GP algorithm for finding a program")
     parser.add_argument("--config_file", type=str, default="config.txt", help="Run the NEAT algorithm for training of the NN")
@@ -207,13 +239,11 @@ if __name__ == "__main__":
             network = neat.nn.FeedForwardNetwork.create(genome, config)
 
             # Simulate the game with the winning network and showing it.
-            show_game = True
-            best_fitness = simulate_game(show_game=show_game, net=network)
+            best_fitness = simulate_game(show_game=True, net=network)
             print(f"\nBest fitness simulation:\n{best_fitness}")
 
-            save_best(genome, network)
-            if show_game:
-                pygame.quit()
+            save_best_neat(genome, network)
+            pygame.quit()
 
         else:
             results = []
@@ -242,7 +272,7 @@ if __name__ == "__main__":
                     # Create the winning network.
                     network = neat.nn.FeedForwardNetwork.create(genome, config)
 
-                    save_best(genome, network)
+                    save_best_neat(genome, network)
 
             except Exception as e:
                 print(e)
@@ -335,28 +365,91 @@ if __name__ == "__main__":
         stats.register("max", numpy.max)
 
         final_pop, logbook = algorithms.eaSimple(pop, toolbox, GP_CXPB, GP_MUTPB, GP_NGEN, stats, halloffame=hof)
+        print("Best individual GP is: %s, with fitness: %s" % (hof[0], hof[0].fitness.values))
+        save_best_gp(hof[0])
 
-        # plot GP tree
-        nodes, edges, labels = gp.graph(hof[0])
-        plot_utils.plotTree(nodes, edges, labels, "best", 'results')
-
-        # plot fitness trends
-        plot_utils.plotTrends(logbook, "best", 'results')
-
-        # --------------------------------------------------------------------
-
-        print("Best individual GP is %s, fitness %s" % (hof[0], hof[0].fitness.values))
-
+        # Run the best routine
         routine = gp.compile(hof[0], pset)
-        simulate_game(show_game=True, program=agent, routine=routine),
+        simulate_game(show_game=True, program=agent, routine=routine)
+        pygame.quit()
 
-
-    if args.run_best:
-        genome, network = load_best()
+    if args.run_best_neat:
+        genome, network = load_best_neat()
         if network is None:
             print("network not present")
         else:
-            best_fitness = simulate_game(show_game=True, net=network)
-            print(f"\nBest fitness simulation:\n{best_fitness}")
+            simulate_game(show_game=True, net=network)
             pygame.quit()
 
+    if args.run_best_gp:
+        agent = AgentSimulator()
+
+        pset = gp.PrimitiveSetTyped("MAIN", [float] * 11, bool)
+        pset.addPrimitive(if_then_else, [bool, float, float], float)
+        # pset.addPrimitive(operator.add, 2)
+        # pset.addPrimitive(operator.sub, 2)
+        pset.addPrimitive(operator.gt, [float, float], bool)
+        pset.addPrimitive(operator.eq, [float, float], bool)
+        pset.addPrimitive(operator.and_, [bool, bool], bool)
+        pset.addPrimitive(operator.or_, [bool, bool], bool)
+        pset.addPrimitive(operator.neg, [bool], bool)
+        pset.addPrimitive(operator.add, [float, float], float)
+        pset.addPrimitive(operator.sub, [float, float], float)
+        pset.addPrimitive(operator.mul, [float, float], float)
+
+        # pset.addPrimitive(eval_function, [dict], float)
+        # pset.addPrimitive(exec2, 2)
+        # pset.addPrimitive(exec3, 3)
+        # pset.addPrimitive(exec_while, 2)
+        # pset.addTerminal(agent.action_left)
+        # pset.addTerminal(agent.action_left_and_fire)
+        # pset.addTerminal(agent.action_still)
+        # pset.addTerminal(agent.action_still_and_fire)
+        # pset.addTerminal(agent.action_right)
+        # pset.addTerminal(agent.action_right_and_fire)
+        # pset.addTerminal(laser_distance, dict)
+        pset.addTerminal(5.0, float)
+        pset.addTerminal(10.0, float)
+        pset.addTerminal(15.0, float)
+        pset.addTerminal(20.0, float)
+        pset.addTerminal(25.0, float)
+        pset.addTerminal(30.0, float)
+        pset.addTerminal(35.0, float)
+        pset.addTerminal(40.0, float)
+        pset.addTerminal(True, bool)
+        pset.addTerminal(False, bool)
+
+        # # TODO probably we should teach the program how to use the terminal set (if it does not manage to learn it by itself)
+        # pset.addTerminal(f1)
+        # pset.addTerminal(f2)
+        # pset.addTerminal(f3)
+        # pset.addTerminal(f4)
+        # pset.addTerminal(f5)
+        # pset.addTerminal(f6)
+        # pset.addTerminal(f7)
+        # pset.addTerminal(f8)
+        # pset.addTerminal(f9)
+        # pset.addTerminal(f10)
+        # pset.addTerminal(f11)
+        # pset.addTerminal(f12)
+        # pset.addTerminal(f13)
+        # pset.addTerminal(f14)
+        # pset.addTerminal(f15)
+        # pset.addTerminal(f16)
+        # pset.addTerminal(f17)
+        creator.create("FitnessMax", base.Fitness, weights=(1.0,))
+        creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMax)
+
+        toolbox = base.Toolbox()
+
+        # Attribute generator
+        toolbox.register("expr_init", gp.genFull, pset=pset, min_=1, max_=2)
+
+        # Run the best routine
+        program = load_best_gp()
+        if program is None:
+            print("program not present")
+        else:
+            routine = gp.compile(program, pset)
+            simulate_game(show_game=True, program=agent, routine=routine)
+            pygame.quit()
