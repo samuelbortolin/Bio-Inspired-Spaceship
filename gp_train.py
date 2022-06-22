@@ -1,6 +1,32 @@
-from functools import partial
-
 import gamerun
+
+
+class Output:
+    pass
+
+
+class A(Output):
+    pass
+
+
+class B(Output):
+    pass
+
+
+class C(Output):
+    pass
+
+
+class D(Output):
+    pass
+
+
+class E(Output):
+    pass
+
+
+class F(Output):
+    pass
 
 
 class AgentSimulator(object):
@@ -43,15 +69,15 @@ class AgentSimulator(object):
         self.keys[gamerun.K_SPACE] = True
 
     def run(self, routine, *args):
-        direction = routine(*args)
-
-        self.keys[gamerun.K_LEFT] = direction
-        self.keys[gamerun.K_RIGHT] = not direction
-        self.keys[gamerun.K_SPACE] = True
+        output = routine(*args)
+        self.keys[gamerun.K_LEFT] = output == A or output == B
+        self.keys[gamerun.K_RIGHT] = output == E or output == F
+        self.keys[gamerun.K_SPACE] = output == A or output == C or output == E
 
 
 def eval_function(f):
     return f()
+
 
 def laser_distance():
     min_d = 9999999
@@ -75,7 +101,3 @@ def exec3(out1, out2, out3):
 
 def if_then_else(condition, out1, out2):
     return out1 if condition else out2
-
-
-# def exec_if_then_else(condition, out1, out2):
-#     return partial(if_then_else, condition, out1, out2)

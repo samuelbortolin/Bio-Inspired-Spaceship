@@ -860,8 +860,7 @@ def run(win, net=None, program=None, routine=None):
                 enemy_spaceships_x[s] = enemy_spaceship.x
                 enemy_spaceships_y[s] = enemy_spaceship.y
 
-        # TODO pass to the network relevant information as input
-        if net:
+        if net:  # TODO pass to the network relevant information as input
             outputs = net.activate((battleship.x, battleship.vel, battleship.health,
                                     aliens_x[0], aliens_x[1],
                                     laser_x[0], laser_y[0],
@@ -879,7 +878,7 @@ def run(win, net=None, program=None, routine=None):
                 K_SPACE: i == 1 or i == 3 or i == 5
             }
 
-        if program:
+        if program:  # TODO pass to the program relevant information as input
             program.run(routine, 
                 battleship.x,
                 # battleship.y,

@@ -23,7 +23,7 @@ import visualize
 import argparse
 import traceback
 
-from gp_train import AgentSimulator, if_then_else
+from gp_train import AgentSimulator, if_then_else, Output, A, B, C, D, E, F
 
 
 def simulate_game(show_game, net=None, program=None, routine=None):
@@ -189,9 +189,9 @@ def save_best_gp(program):
         plot_utils.plotTrends(logbook, "best", 'results/best')
 
 
-GP_POP_SIZE = 50                # population size for GP
-GP_NGEN = 20                    # number of generations for GP
-GP_CXPB, GP_MUTPB = 0.5, 0.2    # crossover and mutation probability for GP
+GP_POP_SIZE = 100               # population size for GP
+GP_NGEN = 50                    # number of generations for GP
+GP_CXPB, GP_MUTPB = 0.5, 0.5    # crossover and mutation probability for GP
 GP_TRNMT_SIZE = 7               # tournament size for GP
 GP_HOF_SIZE = 2                 # size of the Hall-of-Fame for GP
 
@@ -226,10 +226,10 @@ if __name__ == "__main__":
             # Run NEAT for num_generations.
             try:
                 genome = p.run(eval_genomes, args.num_generations)
+            except KeyboardInterrupt:
+                genome = p.best_genome
             except Exception as e:
                 traceback.print_exc()
-                genome = p.best_genome
-            except KeyboardInterrupt:
                 genome = p.best_genome
 
             # Display the winning genome.
@@ -284,95 +284,6 @@ if __name__ == "__main__":
             ax.set_ylabel("Best fitness")
             show()
 
-    if args.gp:
-        agent = AgentSimulator()
-
-        pset = gp.PrimitiveSetTyped("MAIN", [float]*11, bool)
-        pset.addPrimitive(if_then_else, [bool, float, float], float)
-        # pset.addPrimitive(operator.add, 2)
-        # pset.addPrimitive(operator.sub, 2)
-        pset.addPrimitive(operator.gt, [float, float], bool)
-        pset.addPrimitive(operator.eq, [float, float], bool)
-        pset.addPrimitive(operator.and_, [bool, bool], bool)
-        pset.addPrimitive(operator.or_, [bool, bool], bool)
-        pset.addPrimitive(operator.neg, [bool], bool)
-        pset.addPrimitive(operator.add, [float, float], float)
-        pset.addPrimitive(operator.sub, [float, float], float)
-        pset.addPrimitive(operator.mul, [float, float], float)
-
-        # pset.addPrimitive(eval_function, [dict], float)
-        # pset.addPrimitive(exec2, 2)
-        # pset.addPrimitive(exec3, 3)
-        # pset.addPrimitive(exec_while, 2)
-        # pset.addTerminal(agent.action_left)
-        # pset.addTerminal(agent.action_left_and_fire)
-        # pset.addTerminal(agent.action_still)
-        # pset.addTerminal(agent.action_still_and_fire)
-        # pset.addTerminal(agent.action_right)
-        # pset.addTerminal(agent.action_right_and_fire)
-        # pset.addTerminal(laser_distance, dict)
-        pset.addTerminal(5.0, float)
-        pset.addTerminal(10.0, float)
-        pset.addTerminal(15.0, float)
-        pset.addTerminal(20.0, float)
-        pset.addTerminal(25.0, float)
-        pset.addTerminal(30.0, float)
-        pset.addTerminal(35.0, float)
-        pset.addTerminal(40.0, float)
-        pset.addTerminal(True, bool)
-        pset.addTerminal(False, bool)
-
-        # # TODO probably we should teach the program how to use the terminal set (if it does not manage to learn it by itself)
-        # pset.addTerminal(f1)
-        # pset.addTerminal(f2)
-        # pset.addTerminal(f3)
-        # pset.addTerminal(f4)
-        # pset.addTerminal(f5)
-        # pset.addTerminal(f6)
-        # pset.addTerminal(f7)
-        # pset.addTerminal(f8)
-        # pset.addTerminal(f9)
-        # pset.addTerminal(f10)
-        # pset.addTerminal(f11)
-        # pset.addTerminal(f12)
-        # pset.addTerminal(f13)
-        # pset.addTerminal(f14)
-        # pset.addTerminal(f15)
-        # pset.addTerminal(f16)
-        # pset.addTerminal(f17)
-        creator.create("FitnessMax", base.Fitness, weights=(1.0,))
-        creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMax)
-
-        toolbox = base.Toolbox()
-
-        # Attribute generator
-        toolbox.register("expr_init", gp.genFull, pset=pset, min_=1, max_=2)
-
-        # Structure initializers
-        toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.expr_init)
-        toolbox.register("population", tools.initRepeat, list, toolbox.individual)
-        toolbox.register("evaluate", evalArtificialAgent)
-        toolbox.register("select", tools.selTournament, tournsize=GP_TRNMT_SIZE)
-        toolbox.register("mate", gp.cxOnePoint)
-        toolbox.register("expr_mut", gp.genFull, min_=0, max_=2)
-        toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
-        pop = toolbox.population(n=GP_POP_SIZE)
-        hof = tools.HallOfFame(GP_HOF_SIZE)
-        stats = tools.Statistics(lambda ind: ind.fitness.values)
-        stats.register("avg", numpy.mean)
-        stats.register("std", numpy.std)
-        stats.register("min", numpy.min)
-        stats.register("max", numpy.max)
-
-        final_pop, logbook = algorithms.eaSimple(pop, toolbox, GP_CXPB, GP_MUTPB, GP_NGEN, stats, halloffame=hof)
-        print("Best individual GP is: %s, with fitness: %s" % (hof[0], hof[0].fitness.values))
-        save_best_gp(hof[0])
-
-        # Run the best routine
-        routine = gp.compile(hof[0], pset)
-        simulate_game(show_game=True, program=agent, routine=routine)
-        pygame.quit()
-
     if args.run_best_neat:
         genome, network = load_best_neat()
         if network is None:
@@ -381,11 +292,12 @@ if __name__ == "__main__":
             simulate_game(show_game=True, net=network)
             pygame.quit()
 
-    if args.run_best_gp:
+    if args.gp or args.run_best_gp:
         agent = AgentSimulator()
 
-        pset = gp.PrimitiveSetTyped("MAIN", [float] * 11, bool)
+        pset = gp.PrimitiveSetTyped("MAIN", [float] * 11, Output)
         pset.addPrimitive(if_then_else, [bool, float, float], float)
+        pset.addPrimitive(if_then_else, [bool, Output, Output], Output)
         # pset.addPrimitive(operator.add, 2)
         # pset.addPrimitive(operator.sub, 2)
         pset.addPrimitive(operator.gt, [float, float], bool)
@@ -414,8 +326,12 @@ if __name__ == "__main__":
         pset.addTerminal(20.0, float)
         pset.addTerminal(25.0, float)
         pset.addTerminal(30.0, float)
-        pset.addTerminal(35.0, float)
-        pset.addTerminal(40.0, float)
+        pset.addTerminal(A, Output)
+        pset.addTerminal(B, Output)
+        pset.addTerminal(C, Output)
+        pset.addTerminal(D, Output)
+        pset.addTerminal(E, Output)
+        pset.addTerminal(F, Output)
         pset.addTerminal(True, bool)
         pset.addTerminal(False, bool)
 
@@ -440,16 +356,46 @@ if __name__ == "__main__":
         creator.create("FitnessMax", base.Fitness, weights=(1.0,))
         creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMax)
 
-        toolbox = base.Toolbox()
+        if args.gp:
+            toolbox = base.Toolbox()
 
-        # Attribute generator
-        toolbox.register("expr_init", gp.genFull, pset=pset, min_=1, max_=2)
+            # Attribute generator
+            toolbox.register("expr_init", gp.genFull, pset=pset, min_=1, max_=5)
+            # Structure initializers
+            toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.expr_init)
+            toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+            toolbox.register("evaluate", evalArtificialAgent)
+            toolbox.register("select", tools.selTournament, tournsize=GP_TRNMT_SIZE)
+            toolbox.register("mate", gp.cxOnePoint)
+            toolbox.register("expr_mut", gp.genFull, min_=0, max_=2)
+            toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
+            pop = toolbox.population(n=GP_POP_SIZE)
+            hof = tools.HallOfFame(GP_HOF_SIZE)
+            stats = tools.Statistics(lambda ind: ind.fitness.values)
+            stats.register("avg", numpy.mean)
+            stats.register("std", numpy.std)
+            stats.register("min", numpy.min)
+            stats.register("max", numpy.max)
 
-        # Run the best routine
-        program = load_best_gp()
-        if program is None:
-            print("program not present")
-        else:
-            routine = gp.compile(program, pset)
+            try:
+                final_pop, logbook = algorithms.eaSimple(pop, toolbox, GP_CXPB, GP_MUTPB, GP_NGEN, stats, halloffame=hof)
+            except Exception as e:
+                print(e)
+
+            print("Best individual GP is: %s, with fitness: %s" % (hof[0], hof[0].fitness.values))
+            save_best_gp(hof[0])  # TODO control the size of the tree
+
+            # Run the best routine
+            routine = gp.compile(hof[0], pset)
             simulate_game(show_game=True, program=agent, routine=routine)
             pygame.quit()
+
+        if args.run_best_gp:
+            # Run the best routine
+            program = load_best_gp()
+            if program is None:
+                print("program not present")
+            else:
+                routine = gp.compile(program, pset)
+                simulate_game(show_game=True, program=agent, routine=routine)
+                pygame.quit()
