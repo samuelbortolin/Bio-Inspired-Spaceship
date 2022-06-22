@@ -26,7 +26,7 @@ import traceback
 from gp_train import AgentSimulator, if_then_else, Output, A, B, C, D, E, F
 
 
-def simulate_game(show_game, net=None, program=None, routine=None):
+def simulate_game(show_game, name="", net=None, program=None, routine=None):
     gamerun.show_game = show_game
     if gamerun.show_game:
         pygame.init()
@@ -38,7 +38,7 @@ def simulate_game(show_game, net=None, program=None, routine=None):
         screen_width = 700
         screen_height = 550
         win = pygame.display.set_mode((screen_width, screen_height))
-        pygame.display.set_caption('NEAT Spaceship!')
+        pygame.display.set_caption(name)
 
     else:
         win = None
@@ -189,8 +189,9 @@ def save_best_gp(program):
         plot_utils.plotTrends(logbook, "best", 'results/best')
 
 
+GP_NRUNS = 10                   # number of runs for GP
 GP_POP_SIZE = 100               # population size for GP
-GP_NGEN = 50                    # number of generations for GP
+GP_NGEN = 100                   # number of generations for GP
 GP_CXPB, GP_MUTPB = 0.5, 0.5    # crossover and mutation probability for GP
 GP_TRNMT_SIZE = 7               # tournament size for GP
 GP_HOF_SIZE = 2                 # size of the Hall-of-Fame for GP
@@ -239,7 +240,7 @@ if __name__ == "__main__":
             network = neat.nn.FeedForwardNetwork.create(genome, config)
 
             # Simulate the game with the winning network and showing it.
-            best_fitness = simulate_game(show_game=True, net=network)
+            best_fitness = simulate_game(show_game=True, name="NEAT Spaceship!", net=network)
             print(f"\nBest fitness simulation:\n{best_fitness}")
 
             save_best_neat(genome, network)
@@ -266,13 +267,13 @@ if __name__ == "__main__":
                     # Display the winning genome.
                     print(f"\nBest genome:\n{genome}")
 
-                    # Store best fitness for statistical analysis.
-                    best_fitnesses.append(genome.fitness)
-
                     # Create the winning network.
                     network = neat.nn.FeedForwardNetwork.create(genome, config)
 
                     save_best_neat(genome, network)
+
+                    # Store best fitness for statistical analysis.
+                    best_fitnesses.append(genome.fitness)
 
             except Exception as e:
                 print(e)
@@ -289,7 +290,7 @@ if __name__ == "__main__":
         if network is None:
             print("network not present")
         else:
-            simulate_game(show_game=True, net=network)
+            simulate_game(show_game=True, name="NEAT Spaceship!", net=network)
             pygame.quit()
 
     if args.gp or args.run_best_gp:
@@ -335,7 +336,7 @@ if __name__ == "__main__":
         pset.addTerminal(True, bool)
         pset.addTerminal(False, bool)
 
-        # # TODO probably we should teach the program how to use the terminal set (if it does not manage to learn it by itself)
+        # TODO probably we should teach the program how to use the terminal set (if it does not manage to learn it by itself)
         # pset.addTerminal(f1)
         # pset.addTerminal(f2)
         # pset.addTerminal(f3)
@@ -360,7 +361,7 @@ if __name__ == "__main__":
             toolbox = base.Toolbox()
 
             # Attribute generator
-            toolbox.register("expr_init", gp.genFull, pset=pset, min_=1, max_=5)
+            toolbox.register("expr_init", gp.genFull, pset=pset, min_=1, max_=3)
             # Structure initializers
             toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.expr_init)
             toolbox.register("population", tools.initRepeat, list, toolbox.individual)
@@ -369,26 +370,61 @@ if __name__ == "__main__":
             toolbox.register("mate", gp.cxOnePoint)
             toolbox.register("expr_mut", gp.genFull, min_=0, max_=2)
             toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
-            pop = toolbox.population(n=GP_POP_SIZE)
-            hof = tools.HallOfFame(GP_HOF_SIZE)
-            stats = tools.Statistics(lambda ind: ind.fitness.values)
-            stats.register("avg", numpy.mean)
-            stats.register("std", numpy.std)
-            stats.register("min", numpy.min)
-            stats.register("max", numpy.max)
 
-            try:
-                final_pop, logbook = algorithms.eaSimple(pop, toolbox, GP_CXPB, GP_MUTPB, GP_NGEN, stats, halloffame=hof)
-            except Exception as e:
-                print(e)
+            if GP_NRUNS == 1:
+                pop = toolbox.population(n=GP_POP_SIZE)
+                hof = tools.HallOfFame(GP_HOF_SIZE)
+                stats = tools.Statistics(lambda ind: ind.fitness.values)
+                stats.register("avg", numpy.mean)
+                stats.register("std", numpy.std)
+                stats.register("min", numpy.min)
+                stats.register("max", numpy.max)
 
-            print("Best individual GP is: %s, with fitness: %s" % (hof[0], hof[0].fitness.values))
-            save_best_gp(hof[0])  # TODO control the size of the tree
+                try:
+                    final_pop, logbook = algorithms.eaSimple(pop, toolbox, GP_CXPB, GP_MUTPB, GP_NGEN, stats, halloffame=hof)
+                except Exception as e:
+                    print(e)
 
-            # Run the best routine
-            routine = gp.compile(hof[0], pset)
-            simulate_game(show_game=True, program=agent, routine=routine)
-            pygame.quit()
+                print("Best individual GP is: %s, with fitness: %s" % (hof[0], hof[0].fitness.values[0]))
+                save_best_gp(hof[0])  # TODO control the size of the tree
+
+                # Run the best routine
+                routine = gp.compile(hof[0], pset)
+                simulate_game(show_game=True, name="GP Spaceship!", program=agent, routine=routine)
+                pygame.quit()
+
+            else:
+                results = []
+                best_fitnesses = []
+                try:
+                    for i in range(GP_NRUNS):
+                        print(f"run {i + 1}/{GP_NRUNS}")
+
+                        pop = toolbox.population(n=GP_POP_SIZE)
+                        hof = tools.HallOfFame(GP_HOF_SIZE)
+                        stats = tools.Statistics(lambda ind: ind.fitness.values)
+                        stats.register("avg", numpy.mean)
+                        stats.register("std", numpy.std)
+                        stats.register("min", numpy.min)
+                        stats.register("max", numpy.max)
+
+                        final_pop, logbook = algorithms.eaSimple(pop, toolbox, GP_CXPB, GP_MUTPB, GP_NGEN, stats, halloffame=hof)
+                        print("Best individual GP is: %s, with fitness: %s" % (hof[0], hof[0].fitness.values[0]))
+
+                        save_best_gp(hof[0])
+
+                        # Store best fitness for statistical analysis.
+                        best_fitnesses.append(hof[0].fitness.values[0])
+
+                except Exception as e:
+                    print(e)
+
+                results.append(best_fitnesses)
+                fig = figure("GP-Spaceship")
+                ax = fig.gca()
+                ax.boxplot(results)
+                ax.set_ylabel("Best fitness")
+                show()
 
         if args.run_best_gp:
             # Run the best routine
@@ -396,6 +432,6 @@ if __name__ == "__main__":
             if program is None:
                 print("program not present")
             else:
-                routine = gp.compile(program, pset)
-                simulate_game(show_game=True, program=agent, routine=routine)
+                routine = gp.compile(program, pset)  # TODO store also the routine and avoid to re-compile it again
+                simulate_game(show_game=True, name="GP Spaceship!", program=agent, routine=routine)
                 pygame.quit()
