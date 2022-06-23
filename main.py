@@ -1,27 +1,26 @@
 from __future__ import print_function
 
+from pylab import *
+
+import argparse
+import operator
+import os
+import pickle
+import traceback
+
+import neat
+import pygame
+import numpy
+
 from deap import algorithms
 from deap import base
 from deap import creator
 from deap import tools
 from deap import gp
 
-from pylab import *
-
-import os
-import pickle
-import operator
-
-import neat
-import pygame
-import numpy
-
 import gamerun
 import plot_utils
 import visualize
-
-import argparse
-import traceback
 
 from gp_train import AgentSimulator, if_then_else, Output, A, B, C, D, E, F
 
@@ -141,22 +140,26 @@ def load_best_neat():
     return genome, network
 
 
-def save_best_neat(genome, network):
+def save_best_neat(genome, network, config, stats):
     now = f"{datetime.datetime.now().isoformat()}".replace(':', '.')
     dirname = f"runs/{now}_fitness_{genome.fitness}"
     os.mkdir(dirname)
     pickle.dump(genome, open(f"{dirname}/genome.pkl", "wb"))
     pickle.dump(network, open(f"{dirname}/network.pkl", "wb"))
     visualize.draw_net(config, genome, filename=f"{dirname}/representation", view=False)
+    visualize.plot_stats(stats, view=True, filename=f"{dirname}/avg_fitness.png")
+    visualize.plot_species(stats, view=True, filename=f"{dirname}/speciation.png")
 
     best_genome, _ = load_best_neat()
     if best_genome is None or best_genome.fitness < genome.fitness:
         if not os.path.isdir('runs/best/'):
             os.mkdir('runs/best/')
 
-        pickle.dump(genome, open(f"runs/best/genome.pkl", "wb"))
-        pickle.dump(network, open(f"runs/best/network.pkl", "wb"))
-        visualize.draw_net(config, genome, filename=f"runs/best/representation", view=False)
+        pickle.dump(genome, open("runs/best/genome.pkl", "wb"))
+        pickle.dump(network, open("runs/best/network.pkl", "wb"))
+        visualize.draw_net(config, genome, filename="runs/best/representation", view=False)
+        visualize.plot_stats(stats, view=True, filename="runs/best/avg_fitness.png")
+        visualize.plot_species(stats, view=True, filename="runs/best/speciation.png")
 
 
 def load_best_gp():
@@ -183,14 +186,14 @@ def save_best_gp(program):
         if not os.path.isdir('results/best/'):
             os.mkdir('results/best/')
 
-        pickle.dump(program, open(f"results/best/program.pkl", "wb"))
+        pickle.dump(program, open("results/best/program.pkl", "wb"))
         nodes, edges, labels = gp.graph(hof[0])
         plot_utils.plotTree(nodes, edges, labels, "best", 'results/best')
         plot_utils.plotTrends(logbook, "best", 'results/best')
 
 
 GP_NRUNS = 10                   # number of runs for GP
-GP_POP_SIZE = 100               # population size for GP
+GP_POP_SIZE = 200               # population size for GP
 GP_NGEN = 100                   # number of generations for GP
 GP_CXPB, GP_MUTPB = 0.5, 0.5    # crossover and mutation probability for GP
 GP_TRNMT_SIZE = 7               # tournament size for GP
@@ -227,9 +230,8 @@ if __name__ == "__main__":
             # Run NEAT for num_generations.
             try:
                 genome = p.run(eval_genomes, args.num_generations)
-            except KeyboardInterrupt:
-                genome = p.best_genome
             except Exception as e:
+                print(e)
                 traceback.print_exc()
                 genome = p.best_genome
 
@@ -243,7 +245,7 @@ if __name__ == "__main__":
             best_fitness = simulate_game(show_game=True, name="NEAT Spaceship!", net=network)
             print(f"\nBest fitness simulation:\n{best_fitness}")
 
-            save_best_neat(genome, network)
+            save_best_neat(genome, network, config, stats)
             pygame.quit()
 
         else:
@@ -270,13 +272,14 @@ if __name__ == "__main__":
                     # Create the winning network.
                     network = neat.nn.FeedForwardNetwork.create(genome, config)
 
-                    save_best_neat(genome, network)
+                    save_best_neat(genome, network, config, stats)
 
                     # Store best fitness for statistical analysis.
                     best_fitnesses.append(genome.fitness)
 
             except Exception as e:
                 print(e)
+                traceback.print_exc()
 
             results.append(best_fitnesses)
             fig = figure("NEAT-Spaceship")
@@ -384,6 +387,7 @@ if __name__ == "__main__":
                     final_pop, logbook = algorithms.eaSimple(pop, toolbox, GP_CXPB, GP_MUTPB, GP_NGEN, stats, halloffame=hof)
                 except Exception as e:
                     print(e)
+                    traceback.print_exc()
 
                 print("Best individual GP is: %s, with fitness: %s" % (hof[0], hof[0].fitness.values[0]))
                 save_best_gp(hof[0])  # TODO control the size of the tree
@@ -418,6 +422,7 @@ if __name__ == "__main__":
 
                 except Exception as e:
                     print(e)
+                    traceback.print_exc()
 
                 results.append(best_fitnesses)
                 fig = figure("GP-Spaceship")
@@ -432,6 +437,6 @@ if __name__ == "__main__":
             if program is None:
                 print("program not present")
             else:
-                routine = gp.compile(program, pset)  # TODO store also the routine and avoid to re-compile it again
+                routine = gp.compile(program, pset)  # TODO store only the routine and avoid to compile it
                 simulate_game(show_game=True, name="GP Spaceship!", program=agent, routine=routine)
                 pygame.quit()

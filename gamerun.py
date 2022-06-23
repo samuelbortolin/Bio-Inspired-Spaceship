@@ -128,20 +128,31 @@ class Spaceship:
 
 class EnemyAlien:
 
-    walkRight = [pygame.image.load('data/R1E.png'), pygame.image.load('data/R2E.png'),
-                 pygame.image.load('data/R3E.png'), pygame.image.load('data/R4E.png'),
+    walkRight = [pygame.image.load('data/R1E.png'),
+                 pygame.image.load('data/R2E.png'),
+                 pygame.image.load('data/R3E.png'),
+                 pygame.image.load('data/R4E.png'),
                  pygame.image.load('data/R5E.png'),
-                 pygame.image.load('data/R6E.png'), pygame.image.load('data/R7E.png'),
-                 pygame.image.load('data/R8E.png'), pygame.image.load('data/R9E.png'),
+                 pygame.image.load('data/R6E.png'),
+                 pygame.image.load('data/R7E.png'),
+                 pygame.image.load('data/R8E.png'),
+                 pygame.image.load('data/R9E.png'),
                  pygame.image.load('data/R10E.png'),
-                 pygame.image.load('data/R11E.png')]
+                 pygame.image.load('data/R11E.png')
+                 ]
 
-    walkLeft = [pygame.image.load('data/L1E.png'), pygame.image.load('data/L2E.png'),
-                pygame.image.load('data/L3E.png'), pygame.image.load('data/L4E.png'),
+    walkLeft = [pygame.image.load('data/L1E.png'),
+                pygame.image.load('data/L2E.png'),
+                pygame.image.load('data/L3E.png'),
+                pygame.image.load('data/L4E.png'),
                 pygame.image.load('data/L5E.png'),
-                pygame.image.load('data/L6E.png'), pygame.image.load('data/L7E.png'),
-                pygame.image.load('data/L8E.png'), pygame.image.load('data/L9E.png'),
-                pygame.image.load('data/L10E.png'), pygame.image.load('data/L11E.png')]
+                pygame.image.load('data/L6E.png'),
+                pygame.image.load('data/L7E.png'),
+                pygame.image.load('data/L8E.png'),
+                pygame.image.load('data/L9E.png'),
+                pygame.image.load('data/L10E.png'),
+                pygame.image.load('data/L11E.png')
+                ]
 
     def __init__(self, x, y, health, vel):
         self.x = x
@@ -443,7 +454,7 @@ def generateLevel(win, number):
         redrawGameWindow(win)
 
         if addalien:
-            # aliennumber += 1 # TODO: removed temporarily
+            # aliennumber += 1  # TODO: removed temporarily
             if show_game:
                 showLevel(win, level + 1, 'Alien number +1')
             addalien = False
@@ -458,7 +469,7 @@ def generateLevel(win, number):
         alienx = 64
         for e in range(aliennumber):
             aliens.append(EnemyAlien(alienx, alieny, alienhealth, alienvelocity))
-            # alieny += 72 # TODO: removed temporarily
+            # alieny += 72  # TODO: removed temporarily
             if alienx == 64:
                 alienx = 634
             elif alienx == 634:
@@ -702,7 +713,7 @@ def redrawGameWindow(win):
             alien.draw(win)
         # else:
         #     # print("pop aliens")
-        #     aliens.pop(aliens.index(alien)) # TODO: why pop aliens here?
+        #     aliens.pop(aliens.index(alien))  # TODO: why pop aliens here?
         #     alienkills+=1
 
     for v in enemy_spaceships:
@@ -765,8 +776,7 @@ def run(win, net=None, program=None, routine=None):
 
     if frames > 1000000:
         print("game stopped")
-        return 0 # stop the game, prevent training get stuck
-
+        return 0  # stop the game, prevent training get stuck
 
     if show_game:
         clock.tick(600)
@@ -820,7 +830,6 @@ def run(win, net=None, program=None, routine=None):
         # for i, enemy_spaceship in enumerate(enemy_spaceships):
         #     enemy_spaceships_xy[i] = (enemy_spaceship.x, enemy_spaceship.y)
 
-
         # outputs = net.activate((battleship.health,
         #                         battleship.x, screenbreite - battleship.breite - battleship.x,
         #                         # aliens_xy[0][0]-battleship.x, aliens_xy[0][1]-battleship.y, 
@@ -846,7 +855,7 @@ def run(win, net=None, program=None, routine=None):
         laser_x = [0, 0, 0, 0, 0, 0]
         laser_y = [0, 0, 0, 0, 0, 0]
         # Give as input the 5 closer enemy lasers
-        enemy_lasers_with_distance = [(laser, pow(pow(laser.x - battleship.x, 2) + pow(laser.y - battleship.y, 2), 1/2)) for laser in enemy_lasers]
+        enemy_lasers_with_distance = [(laser, pow(pow(laser.x - battleship.x, 2) + pow(laser.y - battleship.y, 2), 1 / 2)) for laser in enemy_lasers]
         enemy_lasers_with_distance.sort(key=lambda x: x[1])
         for e, enemy_laser_with_distance in enumerate(enemy_lasers_with_distance):
             if e < 6:
@@ -861,16 +870,25 @@ def run(win, net=None, program=None, routine=None):
                 enemy_spaceships_y[s] = enemy_spaceship.y
 
         if net:  # TODO pass to the network relevant information as input
-            outputs = net.activate((battleship.x, battleship.vel, battleship.health,
-                                    aliens_x[0], aliens_x[1],
-                                    laser_x[0], laser_y[0],
-                                    laser_x[1], laser_y[1],
-                                    laser_x[2], laser_y[2],
-                                    laser_x[3], laser_y[3],
-                                    laser_x[4], laser_y[4],
-                                    laser_x[5], laser_y[5],
-                                    enemy_spaceships_x[0]))
-
+            outputs = net.activate((battleship.x,
+                                    battleship.vel,
+                                    battleship.health,
+                                    aliens_x[0],
+                                    aliens_x[1],
+                                    laser_x[0],
+                                    laser_y[0],
+                                    laser_x[1],
+                                    laser_y[1],
+                                    laser_x[2],
+                                    laser_y[2],
+                                    laser_x[3],
+                                    laser_y[3],
+                                    laser_x[4],
+                                    laser_y[4],
+                                    laser_x[5],
+                                    laser_y[5],
+                                    enemy_spaceships_x[0]
+                                    ))
             i = np.argmax(np.array(outputs))
             keys = {
                 K_LEFT: i == 0 or i == 1,
@@ -879,32 +897,32 @@ def run(win, net=None, program=None, routine=None):
             }
 
         if program:  # TODO pass to the program relevant information as input
-            program.run(routine, 
-                battleship.x,
-                # battleship.y,
-                battleship.vel,
-                # battleship.health,
-                aliens_x[0],
-                # aliens_y[0],
-                aliens_x[1],
-                # aliens_y[1],
-                laser_x[0],
-                laser_y[0],
-                laser_x[1],
-                laser_y[1],
-                # laser_x[2],
-                # laser_y[2],
-                # laser_x[3],
-                # laser_y[3],
-                # laser_x[4],
-                # laser_y[4],
-                # laser_x[5],
-                # laser_y[5],
-                enemy_lasers_with_distance[0][1] if len(enemy_lasers_with_distance)>0 else 999999,
-                enemy_lasers_with_distance[0][1] if len(enemy_lasers_with_distance)>1 else 999999,
-                enemy_spaceships_x[0],
-                # enemy_spaceships_y[0],
-            )
+            program.run(routine,
+                        battleship.x,
+                        # battleship.y,
+                        battleship.vel,
+                        # battleship.health,
+                        aliens_x[0],
+                        # aliens_y[0],
+                        aliens_x[1],
+                        # aliens_y[1],
+                        laser_x[0],
+                        laser_y[0],
+                        laser_x[1],
+                        laser_y[1],
+                        # laser_x[2],
+                        # laser_y[2],
+                        # laser_x[3],
+                        # laser_y[3],
+                        # laser_x[4],
+                        # laser_y[4],
+                        # laser_x[5],
+                        # laser_y[5],
+                        enemy_lasers_with_distance[0][1] if len(enemy_lasers_with_distance) > 0 else 999999,
+                        enemy_lasers_with_distance[0][1] if len(enemy_lasers_with_distance) > 1 else 999999,
+                        enemy_spaceships_x[0],
+                        # enemy_spaceships_y[0],
+                        )
             keys = program.keys
 
     if keys[K_LEFT]:
@@ -1017,7 +1035,6 @@ def run(win, net=None, program=None, routine=None):
         redrawGameWindow(win)
         generateLevel(win, 0)
         battleship_healths.append(battleship.health)
-
 
     # keys=pygame.key.get_pressed()
     # if pausebutton or keys[pygame.K_ESCAPE]:

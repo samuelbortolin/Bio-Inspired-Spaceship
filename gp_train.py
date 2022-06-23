@@ -81,7 +81,7 @@ def eval_function(f):
 
 def laser_distance():
     min_d = 9999999
-    for x,y in zip(gamerun.laser_x, gamerun.laser_y):
+    for x, y in zip(gamerun.laser_x, gamerun.laser_y):
         min_d = min(min_d, (gamerun.battleship.x - x)**2 + (gamerun.battleship.y - y)**2)
     return min_d
 
