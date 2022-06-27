@@ -114,7 +114,7 @@ def save_best_gp(program, logbook):
     if logbook is not None:
         plot_utils.plotTrends(logbook, "best", dirname)
 
-    best_program, best_routine = load_best_gp()
+    best_program = load_best_gp()
     if best_program is None or best_program.fitness.values[0] < program.fitness.values[0]:
         best_dirname = 'runs/GP/best/'
         if not os.path.isdir(best_dirname):
