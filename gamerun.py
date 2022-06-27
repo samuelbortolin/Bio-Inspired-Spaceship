@@ -97,7 +97,7 @@ class Spaceship:
             le = 10
         else:
             le = 5
-        if len(lasers) < le or True:  # TODO: decide if keep powerups or eliminate them
+        if len(lasers) < le or True:
             # if show_game:
             #
             #     if men.soundchoose.get_tof():
@@ -436,21 +436,19 @@ def generateLevel(win, number):
         for p in powerups:
             if p[1]:
                 p[1] = False
-        a = random.randint(0, len(powerups) - 1)
-        powerups[a][1] = True
+        # a = random.randint(0, len(powerups) - 1)
+        # powerups[a][1] = True
 
-        if show_game:
-            newpfont = pygame.font.SysFont('comicsans', 50)
-            newtext = newpfont.render('New Powerup: ' + powerups[a][0], 1, white)
-            win.blit(newtext, (350 - round(newtext.get_width() / 2), 225))
+        # if show_game:
+        #     newpfont = pygame.font.SysFont('comicsans', 50)
+        #     newtext = newpfont.render('New Powerup: ' + powerups[a][0], 1, white)
+        #     win.blit(newtext, (350 - round(newtext.get_width() / 2), 225))
 
-            exfont = pygame.font.SysFont('comicsans', 30)
-            textex = exfont.render(powerups[a][3], 1, white)
-            win.blit(textex, (350 - round(textex.get_width() / 2), 295))
+        #     exfont = pygame.font.SysFont('comicsans', 30)
+        #     textex = exfont.render(powerups[a][3], 1, white)
+        #     win.blit(textex, (350 - round(textex.get_width() / 2), 295))
 
-            pygame.display.update()
-            # print("sleep")
-            # time.sleep(3)
+        #     pygame.display.update()
         redrawGameWindow(win)
 
         if addalien:
@@ -661,40 +659,40 @@ def redrawGameWindow(win):
         text = lvlfont.render('Level: ' + str(level), 1, white)
         win.blit(text, (350 - round(text.get_width() / 2), 5))
 
-        text = lvlfont.render('Powerups: ', 1, white)
-        win.blit(text, (5, 25))
+        # text = lvlfont.render('Powerups: ', 1, white)
+        # win.blit(text, (5, 25))
 
-        for powerup in powerups:
-            if powerup[1]:
-                textp = lvlfont.render(powerup[0], 1, white)
-                win.blit(textp, (text.get_width() + 5, 25))
-                holdingpowerup = True
+        # for powerup in powerups:
+        #     if powerup[1]:
+        #         textp = lvlfont.render(powerup[0], 1, white)
+        #         win.blit(textp, (text.get_width() + 5, 25))
+        #         holdingpowerup = True
 
-        if holdingpowerup:
-            usebutton = t.button(win, 'Use', 5 + text.get_width() + textp.get_width() + 20, 25, 45, 20, yellow, black, yellow)
-            if usebutton:
-                holdingpowerup = False
-                usepowerup = True
+        # if holdingpowerup:
+        #     usebutton = t.button(win, 'Use', 5 + text.get_width() + textp.get_width() + 20, 25, 45, 20, yellow, black, yellow)
+        #     if usebutton:
+        #         holdingpowerup = False
+        #         usepowerup = True
 
-        if usepowerup:
-            for powerup in powerups:
-                if powerup[1]:
-                    powerup[1] = False
-                    powerup[2] = True
+        # if usepowerup:
+        #     for powerup in powerups:
+        #         if powerup[1]:
+        #             powerup[1] = False
+        #             powerup[2] = True
 
-        for powerup in powerups:
-            if powerup[2]:
-                textp = lvlfont.render(powerup[0], 1, white)
-                win.blit(textp, (text.get_width() + 5, 25))
-                poweruploop += 1
-                if poweruploop == 720:
-                    poweruploop = 0
-                    powerup[2] = False
-                    usepowerup = False
+        # for powerup in powerups:
+        #     if powerup[2]:
+        #         textp = lvlfont.render(powerup[0], 1, white)
+        #         win.blit(textp, (text.get_width() + 5, 25))
+        #         poweruploop += 1
+        #         if poweruploop == 720:
+        #             poweruploop = 0
+        #             powerup[2] = False
+        #             usepowerup = False
 
-        if not holdingpowerup and not usepowerup:
-            textp = lvlfont.render('None', 1, white)
-            win.blit(textp, (text.get_width() + 5, 25))
+        # if not holdingpowerup and not usepowerup:
+        #     textp = lvlfont.render('None', 1, white)
+        #     win.blit(textp, (text.get_width() + 5, 25))
 
     # pausebutton=t.button(win,'Pause',625,10,65,30,yellow,black,yellow)
 
@@ -781,11 +779,6 @@ def run(win, net=None, program=None, routine=None):
     if show_game:
         clock.tick(600)
 
-    # seccount+=1
-    # if seccount==60:
-    #     totaltestseconds+=1
-    #     seccount=0
-
     redrawGameWindow(win)
 
     global show1
@@ -797,7 +790,6 @@ def run(win, net=None, program=None, routine=None):
         if show_game:
             showLevel(win, level, '')
         totaltestseconds = 0
-        # seccount=1
         show1 = False
 
     global shootloop

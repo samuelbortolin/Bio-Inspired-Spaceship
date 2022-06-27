@@ -1,10 +1,9 @@
-from __future__ import print_function
-
 from pylab import *
 
 import argparse
 import operator
 import os
+import sys
 import pickle
 import traceback
 
@@ -43,7 +42,6 @@ def simulate_game(show_game, name="", net=None, program=None, routine=None):
         win = None
 
     gamerun.frames = 0
-    # gamerun.seccount = 0
     gamerun.totaltestseconds = 0
 
     gamerun.shootloop = 0
@@ -53,7 +51,6 @@ def simulate_game(show_game, name="", net=None, program=None, routine=None):
     gamerun.colorcounter = 0
     gamerun.timee = ''
     gamerun.ru = True
-    # gamerun.pausebutton = False
     gamerun.show1 = True
     gamerun.spawnaliens = True
     gamerun.addalien = False
@@ -74,7 +71,7 @@ def simulate_game(show_game, name="", net=None, program=None, routine=None):
     gamerun.keys = {
         gamerun.K_LEFT: False,
         gamerun.K_RIGHT: False,
-        gamerun.K_SPACE: True
+        gamerun.K_SPACE: False
     }
     gamerun.battleship_healths = []
     gamerun.aliens_x = [0, 0, 0]
@@ -87,6 +84,9 @@ def simulate_game(show_game, name="", net=None, program=None, routine=None):
         result = gamerun.run(win, net=net, program=program, routine=routine)
         if result == 0:
             game = False
+
+    if gamerun.show_game:
+        pygame.quit()
 
     # if gamerun.level > s.readlevel():
     #     s.save(gamerun.level, gamerun.alienkills, gamerun.spaceshipkills, gamerun.timee, gamerun.totaltestseconds)
@@ -130,71 +130,74 @@ def evalArtificialAgent(individual):
 
 def load_best_neat():
     genome, network = None, None
-    if os.path.isdir('runs/best/'):
-        for filename in os.listdir('runs/best/'):
+    path = 'runs/NEAT/best/'
+    if os.path.isdir(path):
+        for filename in os.listdir('runs/NEAT/best/'):
             if 'network' in filename:
-                network = pickle.load(open(f"runs/best/{filename}", "rb"))
+                network = pickle.load(open(os.path.join(path, filename), "rb"))
             elif 'genome' in filename:
-                genome = pickle.load(open(f"runs/best/{filename}", "rb"))
+                genome = pickle.load(open(os.path.join(path, filename), "rb"))
 
     return genome, network
 
 
 def save_best_neat(genome, network, config, stats):
     now = f"{datetime.datetime.now().isoformat()}".replace(':', '.')
-    dirname = f"runs/{now}_fitness_{genome.fitness}"
+    dirname = f"runs/NEAT/{now}_fitness_{genome.fitness}"
     os.mkdir(dirname)
-    pickle.dump(genome, open(f"{dirname}/genome.pkl", "wb"))
-    pickle.dump(network, open(f"{dirname}/network.pkl", "wb"))
+    pickle.dump(genome, open(os.path.join(dirname, 'genome.pkl'), "wb"))
+    pickle.dump(network, open(os.path.join(dirname, 'network.pkl'), "wb"))
     visualize.draw_net(config, genome, filename=f"{dirname}/representation", view=False)
     visualize.plot_stats(stats, view=True, filename=f"{dirname}/avg_fitness.png")
     visualize.plot_species(stats, view=True, filename=f"{dirname}/speciation.png")
 
     best_genome, _ = load_best_neat()
     if best_genome is None or best_genome.fitness < genome.fitness:
-        if not os.path.isdir('runs/best/'):
-            os.mkdir('runs/best/')
+        path = 'runs/NEAT/best/'
+        if not os.path.isdir(path):
+            os.mkdir(path)
 
-        pickle.dump(genome, open("runs/best/genome.pkl", "wb"))
-        pickle.dump(network, open("runs/best/network.pkl", "wb"))
-        visualize.draw_net(config, genome, filename="runs/best/representation", view=False)
-        visualize.plot_stats(stats, view=True, filename="runs/best/avg_fitness.png")
-        visualize.plot_species(stats, view=True, filename="runs/best/speciation.png")
+        pickle.dump(genome, open(os.path.join(path, 'genome.pkl'), "wb"))
+        pickle.dump(network, open(os.path.join(path, 'network.pkl'), "wb"))
+        visualize.draw_net(config, genome, filename=f"{path}representation", view=False)
+        visualize.plot_stats(stats, view=True, filename=f"{path}avg_fitness.png")
+        visualize.plot_species(stats, view=True, filename=f"{path}speciation.png")
 
 
 def load_best_gp():
     program = None
-    if os.path.isdir('results/best/'):
-        for filename in os.listdir('results/best/'):
+    path = 'runs/GP/best/'
+    if os.path.isdir(path):
+        for filename in os.listdir(path):
             if 'program' in filename:
-                program = pickle.load(open(f"results/best/{filename}", "rb"))
+                program = pickle.load(open(os.path.join(path, filename), "rb"))
 
     return program
 
 
 def save_best_gp(program):
     now = f"{datetime.datetime.now().isoformat()}".replace(':', '.')
-    dirname = f"results/{now}_fitness_{program.fitness.values[0]}"
+    dirname = f"runs/GP/{now}_fitness_{program.fitness.values[0]}"
     os.mkdir(dirname)
-    pickle.dump(program, open(f"{dirname}/program.pkl", "wb"))
-    nodes, edges, labels = gp.graph(hof[0])
+    pickle.dump(program, open(os.path.join(dirname, 'program.pkl'), "wb"))
+    nodes, edges, labels = gp.graph(program)
     plot_utils.plotTree(nodes, edges, labels, "best", dirname)
     plot_utils.plotTrends(logbook, "best", dirname)
 
     best_program = load_best_gp()
     if best_program is None or best_program.fitness.values[0] < program.fitness.values[0]:
-        if not os.path.isdir('results/best/'):
-            os.mkdir('results/best/')
+        path = 'runs/GP/best/'
+        if not os.path.isdir(path):
+            os.mkdir(path)
 
-        pickle.dump(program, open("results/best/program.pkl", "wb"))
-        nodes, edges, labels = gp.graph(hof[0])
-        plot_utils.plotTree(nodes, edges, labels, "best", 'results/best')
-        plot_utils.plotTrends(logbook, "best", 'results/best')
+        pickle.dump(program, open(os.path.join(path, 'program.pkl'), "wb"))
+        plot_utils.plotTree(nodes, edges, labels, "best", path)
+        plot_utils.plotTrends(logbook, "best", path)
 
 
-GP_NRUNS = 10                   # number of runs for GP
+GP_NRUNS = 1                   # number of runs for GP
 GP_POP_SIZE = 200               # population size for GP
-GP_NGEN = 100                   # number of generations for GP
+GP_NGEN = 1                   # number of generations for GP
 GP_CXPB, GP_MUTPB = 0.5, 0.5    # crossover and mutation probability for GP
 GP_TRNMT_SIZE = 7               # tournament size for GP
 GP_HOF_SIZE = 2                 # size of the Hall-of-Fame for GP
@@ -211,6 +214,10 @@ if __name__ == "__main__":
     parser.add_argument("--num_runs", type=int, default=1, help="The number of runs")
     parser.add_argument("--num_generations", type=int, default=10, help="The number of generations for each run")
     args = parser.parse_args()
+
+    if len(sys.argv)==1:
+        parser.print_help(sys.stderr)
+        sys.exit(1)
 
     if args.neat:
         # Load configuration.
@@ -246,7 +253,6 @@ if __name__ == "__main__":
             print(f"\nBest fitness simulation:\n{best_fitness}")
 
             save_best_neat(genome, network, config, stats)
-            pygame.quit()
 
         else:
             results = []
@@ -294,7 +300,7 @@ if __name__ == "__main__":
             print("network not present")
         else:
             simulate_game(show_game=True, name="NEAT Spaceship!", net=network)
-            pygame.quit()
+
 
     if args.gp or args.run_best_gp:
         agent = AgentSimulator()
@@ -339,24 +345,6 @@ if __name__ == "__main__":
         pset.addTerminal(True, bool)
         pset.addTerminal(False, bool)
 
-        # TODO probably we should teach the program how to use the terminal set (if it does not manage to learn it by itself)
-        # pset.addTerminal(f1)
-        # pset.addTerminal(f2)
-        # pset.addTerminal(f3)
-        # pset.addTerminal(f4)
-        # pset.addTerminal(f5)
-        # pset.addTerminal(f6)
-        # pset.addTerminal(f7)
-        # pset.addTerminal(f8)
-        # pset.addTerminal(f9)
-        # pset.addTerminal(f10)
-        # pset.addTerminal(f11)
-        # pset.addTerminal(f12)
-        # pset.addTerminal(f13)
-        # pset.addTerminal(f14)
-        # pset.addTerminal(f15)
-        # pset.addTerminal(f16)
-        # pset.addTerminal(f17)
         creator.create("FitnessMax", base.Fitness, weights=(1.0,))
         creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMax)
 
@@ -395,7 +383,6 @@ if __name__ == "__main__":
                 # Run the best routine
                 routine = gp.compile(hof[0], pset)
                 simulate_game(show_game=True, name="GP Spaceship!", program=agent, routine=routine)
-                pygame.quit()
 
             else:
                 results = []
@@ -439,4 +426,3 @@ if __name__ == "__main__":
             else:
                 routine = gp.compile(program, pset)  # TODO store only the routine and avoid to compile it
                 simulate_game(show_game=True, name="GP Spaceship!", program=agent, routine=routine)
-                pygame.quit()
