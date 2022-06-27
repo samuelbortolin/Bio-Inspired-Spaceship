@@ -291,19 +291,19 @@ def generate_level(win):
     if (level % 5) == 2:
         alien_health += 2
         if show_game:
-            show_level(win, level + 1, 'Alien health +2')
+            show_level(win, level, 'Alien health +2')
     elif (level % 5) == 3:
         alien_laser_damage += 1
         if show_game:
-            show_level(win, level + 1, 'Alien laser damage +1')
+            show_level(win, level, 'Alien laser damage +1')
     elif (level % 5) == 4:
         alien_health += 2
         alien_laser_damage += 1
         if show_game:
-            show_level(win, level + 1, 'Alien health +2 and Alien laser damage +1')
+            show_level(win, level, 'Alien health +2 and Alien laser damage +1')
     elif (level % 5) == 0:
         if show_game:
-            show_level(win, level + 1, 'Enemy spaceship attacks')
+            show_level(win, level, 'Enemy spaceship attacks')
         spawn_aliens = False
     elif (level % 5) == 1:
         redraw_game_window(win)
@@ -311,12 +311,12 @@ def generate_level(win):
             if alien_number < 3:
                 alien_number += 1
             if show_game:
-                show_level(win, level + 1, 'Alien number +1')
+                show_level(win, level, 'Alien number +1')
             add_alien = False
         else:
             alien_laser_damage += 2
             if show_game:
-                show_level(win, level + 1, 'Alien laser damage +2')
+                show_level(win, level, 'Alien laser damage +2')
             add_alien = True
 
     if spawn_aliens:
@@ -459,8 +459,6 @@ def run(win, net=None, routine=None):
         alien_kills = 0
         spaceship_kills = 0
         generate_level(win)
-        if show_game:
-            show_level(win, level, '')
         show1 = False
 
     if show_game:

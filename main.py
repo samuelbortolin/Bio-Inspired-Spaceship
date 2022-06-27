@@ -125,7 +125,7 @@ def save_best_gp(program, logbook):
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description="NEAT Spaceship")
+    parser = argparse.ArgumentParser(description="Spaceship") # TODO: rename
     parser.add_argument("--run_best_neat", action="store_true", help="Run the best individual found using NEAT")
     parser.add_argument("--run_best_gp", action="store_true", help="Run the best individual found using GP")
     parser.add_argument("--neat", action="store_true", help="Run the NEAT algorithm for training of the NN")
