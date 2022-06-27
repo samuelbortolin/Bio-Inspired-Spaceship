@@ -13,9 +13,8 @@ screen_width = 700
 screen_height = 550
 shoot_loop = 0
 alien_kills = 0
-level = 1
+level = 0
 spaceship_kills = 0
-show1 = True
 spawn_aliens = True
 add_alien = False
 
@@ -60,8 +59,8 @@ class Spaceship:
         font1 = pygame.font.SysFont('comicsans', 30)
         text = font1.render('Health:', 1, white)
         win.blit(text, (5, 5))
-        textb = font1.render(str(self.health), 1, white)
-        win.blit(textb, (210, 5))
+        bar_text = font1.render(str(self.health), 1, white)
+        win.blit(bar_text, (210, 5))
         if self.health > 0:
             pygame.draw.rect(win, red, (15 + text.get_width(), round(text.get_height() / 2), round(self.health * 1.5), 10))
 
@@ -265,12 +264,12 @@ battleship_healths = []
 
 
 def show_level(win, level, msg):
-    lvlfont = pygame.font.SysFont('comicsans', 50)
-    text = lvlfont.render('Level: ' + str(level), 1, white)
+    level_font = pygame.font.SysFont('comicsans', 50)
+    text = level_font.render('Level: ' + str(level), 1, white)
     win.blit(text, (350 - round(text.get_width() / 2), 275))
 
-    msgfont = pygame.font.SysFont('comicsans', 30)
-    text = msgfont.render(msg, 1, white)
+    message_font = pygame.font.SysFont('comicsans', 30)
+    text = message_font.render(msg, 1, white)
     win.blit(text, (350 - round(text.get_width() / 2), 315))
 
     pygame.display.update()
@@ -287,6 +286,8 @@ def generate_level(win):
     global alien_kills
     global spaceship_kills
     global battleship
+
+    level += 1
 
     if (level % 5) == 2:
         alien_health += 2
@@ -332,8 +333,6 @@ def generate_level(win):
         enemy_spaceships.append(EnemySpaceship())
         spawn_aliens = True
 
-    level += 1
-
 
 def redraw_game_window(win):
     global battleship
@@ -343,8 +342,8 @@ def redraw_game_window(win):
     if show_game:
         win.blit(game_background, (0, 0))
 
-        lvlfont = pygame.font.SysFont('comicsans', 30)
-        text = lvlfont.render('Level: ' + str(level), 1, white)
+        level_font = pygame.font.SysFont('comicsans', 30)
+        text = level_font.render('Level: ' + str(level), 1, white)
         win.blit(text, (350 - round(text.get_width() / 2), 5))
 
     for laser in lasers:
@@ -378,7 +377,6 @@ def initialize(show, win_caption):
     global alien_kills
     global level
     global spaceship_kills
-    global show1
     global spawn_aliens
     global add_alien
     global alien_number
@@ -406,9 +404,8 @@ def initialize(show, win_caption):
 
     shoot_loop = 0
     alien_kills = 0
-    level = 1
+    level = 0
     spaceship_kills = 0
-    show1 = True
     spawn_aliens = True
     add_alien = False
     alien_number = 2
@@ -440,7 +437,6 @@ def run(win, net=None, routine=None):
     global frames
     global keys
     global battleship_healths
-    global show1
     global shoot_loop
 
     frames += 1
@@ -452,14 +448,13 @@ def run(win, net=None, routine=None):
     if show_game:
         clock.tick(120)
 
-    redraw_game_window(win)
-
-    if show1:
+    if level == 0:
         battleship_healths.append(battleship.health)
         alien_kills = 0
         spaceship_kills = 0
         generate_level(win)
-        show1 = False
+
+    redraw_game_window(win)
 
     if show_game:
         for event in pygame.event.get():
