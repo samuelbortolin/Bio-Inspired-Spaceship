@@ -26,59 +26,7 @@ from gp_train import AgentSimulator, if_then_else, Output, A, B, C, D, E, F
 
 
 def simulate_game(show_game, name="", net=None, program=None, routine=None):
-    gamerun.show_game = show_game
-    if gamerun.show_game:
-        pygame.init()
-        # gamerun.clock = pygame.time.Clock()
-        gamerun.gamebg = pygame.image.load('data/bg.jpg')
-        gamerun.lasersound = pygame.mixer.Sound('data/laser.wav')
-        gamerun.hitsound = pygame.mixer.Sound('data/hit.wav')
-
-        screen_width = 700
-        screen_height = 550
-        win = pygame.display.set_mode((screen_width, screen_height))
-        pygame.display.set_caption(name)
-
-    else:
-        win = None
-
-    gamerun.frames = 0
-    gamerun.totaltestseconds = 0
-
-    gamerun.shootloop = 0
-    gamerun.alienkills = 0
-    gamerun.level = 1
-    gamerun.spaceshipkills = 0
-    gamerun.colorcounter = 0
-    gamerun.timee = ''
-    gamerun.ru = True
-    gamerun.show1 = True
-    gamerun.spawnaliens = True
-    gamerun.addalien = False
-    gamerun.holdingpowerup = False
-    gamerun.usepowerup = False
-    gamerun.poweruploop = 0
-
-    gamerun.aliennumber = 2
-    gamerun.alienhealth = 10
-    gamerun.alienlaserdamage = 1
-    gamerun.alienvelocity = 1.3
-
-    gamerun.battleship = gamerun.Spaceship()
-    gamerun.lasers = []
-    gamerun.enemy_lasers = []
-    gamerun.aliens = []
-    gamerun.enemy_spaceships = []
-    gamerun.keys = {
-        gamerun.K_LEFT: False,
-        gamerun.K_RIGHT: False,
-        gamerun.K_SPACE: False
-    }
-    gamerun.battleship_healths = []
-    gamerun.aliens_x = [0, 0, 0]
-    gamerun.laser_x = [0, 0, 0, 0, 0, 0]
-    gamerun.laser_y = [0, 0, 0, 0, 0, 0]
-    gamerun.enemy_spaceships_x = [0]
+    win = gamerun.initialize(show_game, name)
 
     game = True
     while game:

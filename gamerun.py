@@ -1,8 +1,5 @@
-import random
 import pygame
 import time
-import tutorial as t
-
 import numpy as np
 
 show_game = False
@@ -28,7 +25,6 @@ show1 = True
 spawnaliens = True
 addalien = False
 
-# TODO remove powerups
 powerups = [['double shooting ability', False, False, 'allows you to have twice as much lasers as normal on screen'],
             ['half alien velocity', False, False, 'slows down the aliens or the spaceship'],
             ['double laser damage', False, False, 'your lasers do twice as much damage as normal'],
@@ -747,6 +743,99 @@ aliens_x = [0, 0, 0]
 laser_x = [0, 0, 0, 0, 0, 0]
 laser_y = [0, 0, 0, 0, 0, 0]
 enemy_spaceships_x = [0]
+
+
+def initialize(show, win_caption):
+    global show_game
+    global gamebg
+    global lasersound
+    global hitsound
+    global frames
+    global totaltestseconds
+    global shootloop
+    global alienkills
+    global level
+    global spaceshipkills
+    global colorcounter
+    global timee
+    global ru
+    global show1
+    global spawnaliens
+    global addalien
+    global holdingpowerup
+    global usepowerup
+    global poweruploop
+    global aliennumber
+    global alienhealth
+    global alienlaserdamage
+    global alienvelocity
+    global battleship
+    global lasers
+    global enemy_lasers
+    global aliens
+    global enemy_spaceships
+    global keys
+    global battleship_healths
+    global aliens_x
+    global laser_x
+    global laser_y
+    global enemy_spaceships_x
+
+    show_game = show
+    if show_game:
+        pygame.init()
+        # clock = pygame.time.Clock()
+        gamebg = pygame.image.load('data/bg.jpg')
+        lasersound = pygame.mixer.Sound('data/laser.wav')
+        hitsound = pygame.mixer.Sound('data/hit.wav')
+
+        screen_width = 700
+        screen_height = 550
+        win = pygame.display.set_mode((screen_width, screen_height))
+        pygame.display.set_caption(win_caption)
+
+    else:
+        win = None
+
+    frames = 0
+    totaltestseconds = 0
+
+    shootloop = 0
+    alienkills = 0
+    level = 1
+    spaceshipkills = 0
+    colorcounter = 0
+    timee = ''
+    ru = True
+    show1 = True
+    spawnaliens = True
+    addalien = False
+    holdingpowerup = False
+    usepowerup = False
+    poweruploop = 0
+
+    aliennumber = 2
+    alienhealth = 10
+    alienlaserdamage = 1
+    alienvelocity = 1.3
+
+    battleship = Spaceship()
+    lasers = []
+    enemy_lasers = []
+    aliens = []
+    enemy_spaceships = []
+    keys = {
+        K_LEFT: False,
+        K_RIGHT: False,
+        K_SPACE: False
+    }
+    battleship_healths = []
+    aliens_x = [0, 0, 0]
+    laser_x = [0, 0, 0, 0, 0, 0]
+    laser_y = [0, 0, 0, 0, 0, 0]
+    enemy_spaceships_x = [0]
+
+    return win
 
 
 def run(win, net=None, program=None, routine=None):

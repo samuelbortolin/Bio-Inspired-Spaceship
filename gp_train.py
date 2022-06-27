@@ -38,37 +38,6 @@ class AgentSimulator(object):
             gamerun.K_SPACE: False
         }
 
-    # TODO: remove actions
-    # def action_left(self):
-    #     self.keys[gamerun.K_LEFT] = True
-    #     self.keys[gamerun.K_RIGHT] = False
-    #     self.keys[gamerun.K_SPACE] = False
-
-    # def action_left_and_fire(self):
-    #     self.keys[gamerun.K_LEFT] = True
-    #     self.keys[gamerun.K_RIGHT] = False
-    #     self.keys[gamerun.K_SPACE] = True
-
-    # def action_still(self):
-    #     self.keys[gamerun.K_LEFT] = False
-    #     self.keys[gamerun.K_RIGHT] = False
-    #     self.keys[gamerun.K_SPACE] = False
-
-    # def action_still_and_fire(self):
-    #     self.keys[gamerun.K_LEFT] = False
-    #     self.keys[gamerun.K_RIGHT] = False
-    #     self.keys[gamerun.K_SPACE] = True
-
-    # def action_right(self):
-    #     self.keys[gamerun.K_LEFT] = False
-    #     self.keys[gamerun.K_RIGHT] = True
-    #     self.keys[gamerun.K_SPACE] = False
-
-    # def action_right_and_fire(self):
-    #     self.keys[gamerun.K_LEFT] = False
-    #     self.keys[gamerun.K_RIGHT] = True
-    #     self.keys[gamerun.K_SPACE] = True
-
     def run(self, routine, *args):
         output = routine(*args)
         self.keys[gamerun.K_LEFT] = output == A or output == B
