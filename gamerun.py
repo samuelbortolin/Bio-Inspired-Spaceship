@@ -827,7 +827,7 @@ def initialize(show, win_caption):
     keys = {
         K_LEFT: False,
         K_RIGHT: False,
-        K_SPACE: False
+        K_SPACE: True # TODO: change to False decrease current best found
     }
     battleship_healths = []
     aliens_x = [0, 0, 0]
