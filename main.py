@@ -104,14 +104,15 @@ def load_best_gp():
     return program
 
 
-def save_best_gp(program):
+def save_best_gp(program, logbook):
     now = f"{datetime.datetime.now().isoformat()}".replace(':', '.')
     dirname = f"runs/GP/{now}_fitness_{program.fitness.values[0]}"
     os.mkdir(dirname)
     pickle.dump(program, open(os.path.join(dirname, 'program.pkl'), "wb"))
     nodes, edges, labels = gp.graph(program)
     plot_utils.plotTree(nodes, edges, labels, "best", dirname)
-    plot_utils.plotTrends(logbook, "best", dirname)
+    if logbook is not None:
+        plot_utils.plotTrends(logbook, "best", dirname)
 
     best_program, best_routine = load_best_gp()
     if best_program is None or best_program.fitness.values[0] < program.fitness.values[0]:
@@ -290,9 +291,10 @@ if __name__ == "__main__":
                 except (Exception, KeyboardInterrupt) as e:
                     print(e)
                     traceback.print_exc()
+                    logbook = None
 
                 print("Best individual GP is: %s, with fitness: %s" % (hof[0], hof[0].fitness.values[0]))
-                save_best_gp(hof[0])  # TODO control the size of the tree
+                save_best_gp(hof[0], logbook)  # TODO control the size of the tree
 
                 # Run the best routine
                 routine = gp.compile(hof[0], pset)
@@ -317,7 +319,7 @@ if __name__ == "__main__":
                         print("Best individual GP is: %s, with fitness: %s" % (hof[0], hof[0].fitness.values[0]))
 
                         routine = gp.compile(hof[0], pset)
-                        save_best_gp(hof[0])
+                        save_best_gp(hof[0], logbook)
 
                         # Store best fitness for statistical analysis.
                         best_fitnesses.append(hof[0].fitness.values[0])
