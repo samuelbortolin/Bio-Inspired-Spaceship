@@ -1,6 +1,7 @@
 from pylab import *
 
 import argparse
+import configparser
 import operator
 import os
 import sys
@@ -195,13 +196,6 @@ def save_best_gp(program):
         plot_utils.plotTrends(logbook, "best", path)
 
 
-GP_NRUNS = 1                   # number of runs for GP
-GP_POP_SIZE = 200               # population size for GP
-GP_NGEN = 1                   # number of generations for GP
-GP_CXPB, GP_MUTPB = 0.5, 0.5    # crossover and mutation probability for GP
-GP_TRNMT_SIZE = 7               # tournament size for GP
-GP_HOF_SIZE = 2                 # size of the Hall-of-Fame for GP
-
 
 if __name__ == "__main__":
 
@@ -210,7 +204,7 @@ if __name__ == "__main__":
     parser.add_argument("--run_best_gp", action="store_true", help="Run the best individual found using GP")
     parser.add_argument("--neat", action="store_true", help="Run the NEAT algorithm for training of the NN")
     parser.add_argument("--gp", action="store_true", help="Run the GP algorithm for finding a program")
-    parser.add_argument("--config_file", type=str, default="config.txt", help="Run the NEAT algorithm for training of the NN")
+    parser.add_argument("--config_file", type=str, default=None, help="Configuration file")
     parser.add_argument("--num_runs", type=int, default=1, help="The number of runs")
     parser.add_argument("--num_generations", type=int, default=10, help="The number of generations for each run")
     args = parser.parse_args()
@@ -222,7 +216,7 @@ if __name__ == "__main__":
     if args.neat:
         # Load configuration.
         local_dir = os.path.dirname(__file__)
-        config_file = os.path.join(local_dir, args.config_file)
+        config_file = os.path.join(local_dir, args.config_file) if args.config_file else 'configNEAT.txt'
         config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet, neat.DefaultStagnation, config_file)
 
         if args.num_runs == 1:
@@ -349,6 +343,17 @@ if __name__ == "__main__":
         creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMax)
 
         if args.gp:
+            config_file = args.config_file if args.config_file else 'configGP.txt'
+            config = configparser.ConfigParser() # TODO: decide where to put num_runs and num_generations
+            config.read(config_file)
+            num_runs = int(config['GP']['num_runs'])
+            num_generations = int(config['GP']['num_generations'])
+            pop_size = int(config['GP']['pop_size'])
+            mating_prob = float(config['GP']['mating_prob'])
+            mutation_prob = float(config['GP']['mutation_prob'])
+            tournament_size = int(config['GP']['tournament_size'])
+            hof_size = int(config['GP']['hof_size'])
+
             toolbox = base.Toolbox()
 
             # Attribute generator
@@ -357,14 +362,14 @@ if __name__ == "__main__":
             toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.expr_init)
             toolbox.register("population", tools.initRepeat, list, toolbox.individual)
             toolbox.register("evaluate", evalArtificialAgent)
-            toolbox.register("select", tools.selTournament, tournsize=GP_TRNMT_SIZE)
+            toolbox.register("select", tools.selTournament, tournsize=tournament_size)
             toolbox.register("mate", gp.cxOnePoint)
             toolbox.register("expr_mut", gp.genFull, min_=0, max_=2)
             toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
 
-            if GP_NRUNS == 1:
-                pop = toolbox.population(n=GP_POP_SIZE)
-                hof = tools.HallOfFame(GP_HOF_SIZE)
+            if num_runs == 1:
+                pop = toolbox.population(n=pop_size)
+                hof = tools.HallOfFame(hof_size)
                 stats = tools.Statistics(lambda ind: ind.fitness.values)
                 stats.register("avg", numpy.mean)
                 stats.register("std", numpy.std)
@@ -372,7 +377,7 @@ if __name__ == "__main__":
                 stats.register("max", numpy.max)
 
                 try:
-                    final_pop, logbook = algorithms.eaSimple(pop, toolbox, GP_CXPB, GP_MUTPB, GP_NGEN, stats, halloffame=hof)
+                    final_pop, logbook = algorithms.eaSimple(pop, toolbox, mating_prob, mutation_prob, num_generations, stats, halloffame=hof)
                 except Exception as e:
                     print(e)
                     traceback.print_exc()
@@ -388,18 +393,18 @@ if __name__ == "__main__":
                 results = []
                 best_fitnesses = []
                 try:
-                    for i in range(GP_NRUNS):
-                        print(f"run {i + 1}/{GP_NRUNS}")
+                    for i in range(num_runs):
+                        print(f"run {i + 1}/{num_runs}")
 
-                        pop = toolbox.population(n=GP_POP_SIZE)
-                        hof = tools.HallOfFame(GP_HOF_SIZE)
+                        pop = toolbox.population(n=pop_size)
+                        hof = tools.HallOfFame(hof_size)
                         stats = tools.Statistics(lambda ind: ind.fitness.values)
                         stats.register("avg", numpy.mean)
                         stats.register("std", numpy.std)
                         stats.register("min", numpy.min)
                         stats.register("max", numpy.max)
 
-                        final_pop, logbook = algorithms.eaSimple(pop, toolbox, GP_CXPB, GP_MUTPB, GP_NGEN, stats, halloffame=hof)
+                        final_pop, logbook = algorithms.eaSimple(pop, toolbox, mating_prob, mutation_prob, num_generations, stats, halloffame=hof)
                         print("Best individual GP is: %s, with fitness: %s" % (hof[0], hof[0].fitness.values[0]))
 
                         save_best_gp(hof[0])
