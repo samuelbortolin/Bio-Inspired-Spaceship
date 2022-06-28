@@ -500,7 +500,8 @@ def run(win, net=None, routine=None):
                                     laser_y[4],
                                     laser_x[5],
                                     laser_y[5],
-                                    enemy_spaceships_x[0]))
+                                    enemy_spaceships_x[0],
+                                    level))
             i = np.argmax(np.array(outputs))
             keys = {
                 K_LEFT: i == 0 or i == 1,
@@ -526,7 +527,8 @@ def run(win, net=None, routine=None):
                              laser_y[4],
                              laser_x[5],
                              laser_y[5],
-                             enemy_spaceships_x[0])
+                             enemy_spaceships_x[0],
+                             level)
             keys = {
                 K_LEFT: output == A or output == B,
                 K_RIGHT: output == E or output == F,

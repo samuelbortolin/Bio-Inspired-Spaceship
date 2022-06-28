@@ -222,7 +222,7 @@ if __name__ == "__main__":
             simulate_game(show_game=True, name="NEAT Spaceship!", net=network)
 
     if args.gp or args.run_best_gp:
-        pset = gp.PrimitiveSetTyped("MAIN", [float] * 18, Output)
+        pset = gp.PrimitiveSetTyped("MAIN", [float] * 19, Output)
         pset.addPrimitive(if_then_else, [bool, float, float], float)
         pset.addPrimitive(if_then_else, [bool, Output, Output], Output)
         pset.addPrimitive(operator.gt, [float, float], bool)
@@ -280,8 +280,8 @@ if __name__ == "__main__":
             toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
 
             # BLOAT control
-            toolbox.decorate("mate", gp.staticLimit(operator.attrgetter('height'), max_tree_size))
-            toolbox.decorate("mutate", gp.staticLimit(operator.attrgetter('height'), max_tree_size))
+            toolbox.decorate("mate", gp.staticLimit(operator.attrgetter("height"), max_tree_size))
+            toolbox.decorate("mutate", gp.staticLimit(operator.attrgetter("height"), max_tree_size))
 
             if num_runs == 1:
                 pop = toolbox.population(n=pop_size)
