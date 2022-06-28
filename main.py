@@ -263,11 +263,13 @@ if __name__ == "__main__":
             mutation_prob = float(config['GP']['mutation_prob'])
             tournament_size = int(config['GP']['tournament_size'])
             hof_size = int(config['GP']['hof_size'])
+            max_tree_size = int(config['GP']['max_tree_size'])
 
             toolbox = base.Toolbox()
 
             # Attribute generator
             toolbox.register("expr_init", gp.genFull, pset=pset, min_=1, max_=3)
+
             # Structure initializers
             toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.expr_init)
             toolbox.register("population", tools.initRepeat, list, toolbox.individual)
@@ -276,6 +278,9 @@ if __name__ == "__main__":
             toolbox.register("mate", gp.cxOnePoint)
             toolbox.register("expr_mut", gp.genFull, min_=0, max_=2)
             toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
+
+            # BLOAT control
+            gp.staticLimit(operator.attrgetter('height'), max_tree_size)
 
             if num_runs == 1:
                 pop = toolbox.population(n=pop_size)
@@ -294,7 +299,7 @@ if __name__ == "__main__":
                     logbook = None
 
                 print("Best individual GP is: %s, with fitness: %s" % (hof[0], hof[0].fitness.values[0]))
-                save_best_gp(hof[0], logbook)  # TODO control the size of the tree
+                save_best_gp(hof[0], logbook)
 
                 # Run the best routine
                 routine = gp.compile(hof[0], pset)

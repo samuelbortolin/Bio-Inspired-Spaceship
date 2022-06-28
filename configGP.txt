@@ -10,3 +10,4 @@ crossover_prob      = 0.5
 mutation_prob       = 0.5
 tournament_size     = 7
 hof_size            = 2
+max_tree_size       = 50
