@@ -280,7 +280,8 @@ if __name__ == "__main__":
             toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
 
             # BLOAT control
-            gp.staticLimit(operator.attrgetter('height'), max_tree_size)
+            toolbox.decorate("mate", gp.staticLimit(operator.attrgetter('height'), max_tree_size))
+            toolbox.decorate("mutate", gp.staticLimit(operator.attrgetter('height'), max_tree_size))
 
             if num_runs == 1:
                 pop = toolbox.population(n=pop_size)
