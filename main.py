@@ -110,9 +110,9 @@ def save_best_gp(program, logbook):
     os.mkdir(dirname)
     pickle.dump(program, open(os.path.join(dirname, 'program.pkl'), "wb"))
     nodes, edges, labels = gp.graph(program)
-    plot_utils.plotTree(nodes, edges, labels, "best", dirname)
+    plot_utils.plot_tree(nodes, edges, labels, "best", dirname)
     if logbook is not None:
-        plot_utils.plotTrends(logbook, "best", dirname)
+        plot_utils.plot_trends(logbook, "best", dirname)
 
     best_program = load_best_gp()
     if best_program is None or best_program.fitness.values[0] < program.fitness.values[0]:
@@ -125,14 +125,14 @@ def save_best_gp(program, logbook):
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description="Spaceship") # TODO: rename
+    parser = argparse.ArgumentParser(description="Bio Inspired Spaceship")
     parser.add_argument("--run_best_neat", action="store_true", help="Run the best individual found using NEAT")
     parser.add_argument("--run_best_gp", action="store_true", help="Run the best individual found using GP")
     parser.add_argument("--neat", action="store_true", help="Run the NEAT algorithm for training of the NN")
     parser.add_argument("--gp", action="store_true", help="Run the GP algorithm for finding a program")
     args = parser.parse_args()
 
-    if len(sys.argv)==1:
+    if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
         sys.exit(1)
 

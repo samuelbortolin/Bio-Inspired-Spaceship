@@ -6,18 +6,19 @@ import imp
 import os
 
 
-def plotTrends(logbook, name, folder=None):
+def plot_trends(logbook, name, folder=None):
     gen = logbook.select("gen")
     fit_min = logbook.select("min")
     fit_max = logbook.select("max")
     fit_avg = logbook.select("avg")
     fit_std = logbook.select("std")
 
+    # plt.title("Genetic Programming (fitness trend)")
     fig = plt.figure("Genetic Programming (fitness trend)")
     ax1 = fig.add_subplot(111)
-    line1 = ax1.plot(gen, fit_min, label="Min")
-    line2 = ax1.plot(gen, fit_max, label="Max")
-    line3 = ax1.errorbar(gen, fit_avg, yerr=fit_std, label="Avg")
+    ax1.plot(gen, fit_min, label="Min")
+    ax1.plot(gen, fit_max, label="Max")
+    ax1.errorbar(gen, fit_avg, yerr=fit_std, label="Avg")
     ax1.set_xlabel("Generation")
     ax1.set_ylabel("Fitness")
     ax1.set_xlim(0, len(gen) - 1)
@@ -26,11 +27,11 @@ def plotTrends(logbook, name, folder=None):
     plt.show()
 
 
-def plotTree(nodes, edges, labels, name, folder=None):
+def plot_tree(nodes, edges, labels, name, folder=None):
     if folder is not None and not os.path.exists(folder):
         os.makedirs(folder)
 
-    if importModule('pygraphviz'):
+    if import_module('pygraphviz'):
         import pygraphviz as pgv
         g = pgv.AGraph()
         g.add_nodes_from(nodes)
@@ -41,7 +42,7 @@ def plotTree(nodes, edges, labels, name, folder=None):
             n.attr['label'] = labels[i]
         g.draw(folder + '/' + 'tree_' + name + '.pdf')
 
-    if importModule('networkx'):
+    if import_module('networkx'):
         import networkx as nx
         plt.figure("GP (best tree)")
         g = nx.Graph()
@@ -55,7 +56,7 @@ def plotTree(nodes, edges, labels, name, folder=None):
         plt.show()
 
 
-def importModule(module):
+def import_module(module):
     try:
         imp.find_module(module)
         found = True
