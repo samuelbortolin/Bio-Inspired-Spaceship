@@ -39,9 +39,9 @@ def simulate_game(show_game, name="", net=None, routine=None):
     if gamerun.show_game:
         pygame.quit()
 
-    fitness = gamerun.alienkills * 10 + gamerun.spaceshipkills * 50 + gamerun.battleship_healths[-1]/10.0
+    fitness = gamerun.alien_kills * 10 + gamerun.spaceship_kills * 50 + gamerun.battleship_healths[-1]/10.0
 
-    print(f"{fitness} -> {gamerun.level} {gamerun.alienkills} {gamerun.spaceshipkills} {gamerun.frames} {gamerun.battleship_healths}")
+    print(f"{fitness} -> {gamerun.level} {gamerun.alien_kills} {gamerun.spaceship_kills} {gamerun.frames} {gamerun.battleship_healths}")
     # TODO valutare se rimuove il numero di frame dal fitness? (kind of penalty for escaping?)
     # TODO magari valutare i colpi dati ai nemici (da massimizzare) e minimizzare quelli andati a vuoto?
     # TODO magari valutare i colpi presi dai nemici (da minimizzare, i.e., subirli più avanti in livelli più complessi)?
