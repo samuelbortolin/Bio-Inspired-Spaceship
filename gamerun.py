@@ -71,31 +71,32 @@ class Spaceship:
         global alien_laser_damage
         self.health -= alien_laser_damage
 
+
 class EnemyAlien:
 
     walk_right = [pygame.image.load('data/R1E.png'),
-                 pygame.image.load('data/R2E.png'),
-                 pygame.image.load('data/R3E.png'),
-                 pygame.image.load('data/R4E.png'),
-                 pygame.image.load('data/R5E.png'),
-                 pygame.image.load('data/R6E.png'),
-                 pygame.image.load('data/R7E.png'),
-                 pygame.image.load('data/R8E.png'),
-                 pygame.image.load('data/R9E.png'),
-                 pygame.image.load('data/R10E.png'),
-                 pygame.image.load('data/R11E.png')]
+                  pygame.image.load('data/R2E.png'),
+                  pygame.image.load('data/R3E.png'),
+                  pygame.image.load('data/R4E.png'),
+                  pygame.image.load('data/R5E.png'),
+                  pygame.image.load('data/R6E.png'),
+                  pygame.image.load('data/R7E.png'),
+                  pygame.image.load('data/R8E.png'),
+                  pygame.image.load('data/R9E.png'),
+                  pygame.image.load('data/R10E.png'),
+                  pygame.image.load('data/R11E.png')]
 
     walk_left = [pygame.image.load('data/L1E.png'),
-                pygame.image.load('data/L2E.png'),
-                pygame.image.load('data/L3E.png'),
-                pygame.image.load('data/L4E.png'),
-                pygame.image.load('data/L5E.png'),
-                pygame.image.load('data/L6E.png'),
-                pygame.image.load('data/L7E.png'),
-                pygame.image.load('data/L8E.png'),
-                pygame.image.load('data/L9E.png'),
-                pygame.image.load('data/L10E.png'),
-                pygame.image.load('data/L11E.png')]
+                 pygame.image.load('data/L2E.png'),
+                 pygame.image.load('data/L3E.png'),
+                 pygame.image.load('data/L4E.png'),
+                 pygame.image.load('data/L5E.png'),
+                 pygame.image.load('data/L6E.png'),
+                 pygame.image.load('data/L7E.png'),
+                 pygame.image.load('data/L8E.png'),
+                 pygame.image.load('data/L9E.png'),
+                 pygame.image.load('data/L10E.png'),
+                 pygame.image.load('data/L11E.png')]
 
     def __init__(self, x, y, health, vel):
         self.x = x
@@ -116,6 +117,7 @@ class EnemyAlien:
             else:
                 self.vel = self.vel * -1
                 self.walk_count = 0
+
         else:
             e = self.vel
             if self.x - self.vel > self.path[0]:
@@ -133,6 +135,7 @@ class EnemyAlien:
             if show_game:
                 win.blit(self.walk_right[self.walk_count // 6], (self.x, self.y))
             self.walk_count += 1
+
         else:
             if show_game:
                 win.blit(self.walk_left[self.walk_count // 6], (self.x, self.y))
@@ -142,6 +145,7 @@ class EnemyAlien:
             self.hit_box = (self.x + 14, self.y + 2, 31, 57)
         else:
             self.hit_box = (self.x + 23, self.y + 2, 31, 57)
+
         if show_game:
             self.draw_health_bar(win)
 
@@ -157,7 +161,6 @@ class EnemyAlien:
         if self.laser_count == 0:
             enemy_lasers.append(Laser(self.x + round(self.width / 2) + 15, self.y + 8, green))
             self.laser_count = 1
-
         else:
             self.laser_count += 1
             if self.laser_count > 66:
@@ -196,8 +199,8 @@ class EnemySpaceship:
         self.laser_count = 0
 
     def draw(self, win):
+        global color
         color = green
-
         if show_game:
             pygame.draw.rect(win, grey, (self.x + 20, self.y, 70, 50))
             pygame.draw.rect(win, color, (self.x + 90, self.y, 20, 35))
@@ -208,6 +211,7 @@ class EnemySpaceship:
 
         if show_game:
             self.draw_health_bar(win)
+
         self.move()
         self.fire()
 
@@ -218,6 +222,7 @@ class EnemySpaceship:
                 self.x += self.vel
             else:
                 self.vel = self.vel * -1
+
         else:
             self.vel = -3
             if self.x - self.vel > self.path[0]:
@@ -231,6 +236,7 @@ class EnemySpaceship:
                 enemy_lasers.append(Laser(self.x + round(self.width / 2) + 13, self.y + 8, green))
             else:
                 enemy_lasers.append(Laser(self.x + round(self.width / 2) - 13, self.y + 8, green))
+
             self.laser_count = 1
 
         else:
@@ -261,10 +267,11 @@ keys = {
     K_SPACE: True
 }
 battleship_healths = []
-aliens_x = [0, 0, 0]
+aliens_x = [0, 0]
 laser_x = [0, 0, 0, 0, 0, 0]
 laser_y = [0, 0, 0, 0, 0, 0]
 enemy_spaceships_x = [0]
+
 
 def show_level(win, level, msg):
     level_font = pygame.font.SysFont('comicsans', 50)
@@ -310,23 +317,26 @@ def generate_level(win, number):
         alien_health += 2
         if show_game:
             show_level(win, level + 1, 'Alien health +2')
+
     elif level_counter == 3:
         alien_laser_damage += 1
         if show_game:
             show_level(win, level + 1, 'Alien laser damage +1')
+
     elif level_counter == 4:
         alien_health += 2
         alien_laser_damage += 1
         if show_game:
             show_level(win, level + 1, 'Alien health +2 and Alien laser damage +1')
+
     elif level_counter == 5:
         if show_game:
             show_level(win, level + 1, 'Enemy spaceship attacks')
         level_counter = 0
         spawn_aliens = False
+
     elif level_counter == 1 and number != 1:
         redraw_game_window(win)
-
         if keep_same_alien_damage:
             if show_game:
                 show_level(win, level + 1, '')
@@ -347,6 +357,7 @@ def generate_level(win, number):
     else:
         enemy_spaceships.append(EnemySpaceship())
         spawn_aliens = True
+
     level_counter += 1
     level += 1
 
@@ -358,7 +369,6 @@ def redraw_game_window(win):
 
     if show_game:
         win.blit(game_background, (0, 0))
-
         level_font = pygame.font.SysFont('comicsans', 30)
         text = level_font.render('Level: ' + str(level), 1, white)
         win.blit(text, (350 - round(text.get_width() / 2), 5))
@@ -380,7 +390,6 @@ def redraw_game_window(win):
     battleship.draw(win)
     if show_game:
         battleship.draw_health_bar(win)
-
         pygame.display.update()
 
 
@@ -419,7 +428,6 @@ def initialize(show, win_caption):
         game_background = pygame.image.load('data/bg.jpg')
         win = pygame.display.set_mode((screen_width, screen_height))
         pygame.display.set_caption(win_caption)
-
     else:
         win = None
 
@@ -449,11 +457,10 @@ def initialize(show, win_caption):
         K_SPACE: True
     }
     battleship_healths = []
-    aliens_x = [0, 0, 0]
+    aliens_x = [0, 0]
     laser_x = [0, 0, 0, 0, 0, 0]
     laser_y = [0, 0, 0, 0, 0, 0]
     enemy_spaceships_x = [0]
-
     return win
 
 
@@ -476,7 +483,6 @@ def run(win, net=None, routine=None):
     global shoot_loop
 
     frames += 1
-
     if frames > 1000000:
         print("game stopped")
         return 0  # stop the game, prevent training get stuck
@@ -501,7 +507,7 @@ def run(win, net=None, routine=None):
                 return 0
 
     if frames % 10 == 0:
-        aliens_x = [0, 0, 0]
+        aliens_x = [0, 0]
         for a, alien in enumerate(aliens):
             if a < 3:
                 aliens_x[a] = alien.x
@@ -595,9 +601,9 @@ def run(win, net=None, routine=None):
 
                 if 5 > xx > -5 and 5 > yy > -5:
                     enemy_lasers.pop(enemy_lasers.index(e))
-                    if laser not in popped_lasers:                        
+                    if laser not in popped_lasers:
                         popped_lasers.add(lasers.pop(lasers.index(laser)))
-        
+
         else:
             lasers.pop(lasers.index(laser))
 

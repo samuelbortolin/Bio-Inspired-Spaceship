@@ -39,7 +39,7 @@ def simulate_game(show_game, name="", net=None, routine=None):
     if gamerun.show_game:
         pygame.quit()
 
-    fitness = gamerun.alien_kills * 10 + gamerun.spaceship_kills * 50 + gamerun.battleship_healths[-1]/10.0
+    fitness = gamerun.alien_kills * 10 + gamerun.spaceship_kills * 50 + gamerun.battleship_healths[-1] / 10.0
 
     print(f"{fitness} -> {gamerun.level} {gamerun.alien_kills} {gamerun.spaceship_kills} {gamerun.frames} {gamerun.battleship_healths}")
     # TODO valutare se rimuove il numero di frame dal fitness? (kind of penalty for escaping?)
@@ -168,12 +168,11 @@ if __name__ == "__main__":
             # Create the winning network.
             network = neat.nn.FeedForwardNetwork.create(genome, config)
 
+            save_best_neat(genome, network, config, stats)
+
             # Simulate the game with the winning network and showing it.
             best_fitness = simulate_game(show_game=True, name="NEAT Spaceship!", net=network)
             print(f"\nBest fitness simulation:\n{best_fitness}")
-
-            save_best_neat(genome, network, config, stats)
-
         else:
             results = []
             best_fitnesses = []
