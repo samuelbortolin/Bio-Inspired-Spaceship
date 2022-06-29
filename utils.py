@@ -11,7 +11,6 @@ from deap import gp
 
 import plot_utils
 import run_game
-import visualize
 
 
 def simulate_game(show_game, name="", net=None, routine=None):
@@ -68,9 +67,9 @@ def save_best_neat(genome, network, config, stats):
     os.mkdir(dirname)
     pickle.dump(genome, open(os.path.join(dirname, 'genome.pkl'), "wb"))
     pickle.dump(network, open(os.path.join(dirname, 'network.pkl'), "wb"))
-    visualize.draw_net(config, genome, filename=f"{dirname}/representation", view=False)
-    visualize.plot_stats(stats, view=True, filename=f"{dirname}/avg_fitness.png")
-    visualize.plot_species(stats, view=True, filename=f"{dirname}/speciation.png")
+    plot_utils.draw_net(config, genome, filename=f"{dirname}/representation", view=False)
+    plot_utils.plot_stats(stats, view=True, filename=f"{dirname}/avg_fitness.png")
+    plot_utils.plot_species(stats, view=True, filename=f"{dirname}/speciation.png")
 
     best_genome, _ = load_best_neat()
     if best_genome is None or best_genome.fitness < genome.fitness:
