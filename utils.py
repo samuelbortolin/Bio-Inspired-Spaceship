@@ -77,7 +77,7 @@ def save_best_neat(genome, network, config, stats):
         if not os.path.isdir(best_dirname):
             os.mkdir(best_dirname)
 
-        shutil.copytree(dirname, best_dirname)
+        shutil.copytree(dirname, best_dirname, dirs_exist_ok=True)
 
 
 def load_best_gp():
@@ -107,4 +107,4 @@ def save_best_gp(program, logbook):
         if not os.path.isdir(best_dirname):
             os.mkdir(best_dirname)
 
-        shutil.copytree(dirname, best_dirname)
+        shutil.copytree(dirname, best_dirname, dirs_exist_ok=True)
