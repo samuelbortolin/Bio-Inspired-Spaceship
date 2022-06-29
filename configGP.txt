@@ -1,8 +1,13 @@
+[RUNS]
+num_runs              = 10
+
+[GENERATIONS]
+num_generations       = 250
+
 [GP]
-num_runs            = 10
-num_generations     = 100
-pop_size            = 200
-mating_prob         = 0.5
+pop_size            = 100
+crossover_prob      = 0.5
 mutation_prob       = 0.5
 tournament_size     = 7
 hof_size            = 2
+max_tree_size       = 50

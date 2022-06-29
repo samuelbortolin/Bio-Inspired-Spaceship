@@ -2,6 +2,8 @@ import pygame
 import time
 import numpy as np
 
+from gp_train import A, B, C, E, F
+
 show_game = False
 gamebg = None
 lasersound = None
@@ -827,7 +829,7 @@ def initialize(show, win_caption):
     keys = {
         K_LEFT: False,
         K_RIGHT: False,
-        K_SPACE: True # TODO: change to False decrease current best found
+        K_SPACE: True  # TODO: change to False decrease current best found
     }
     battleship_healths = []
     aliens_x = [0, 0, 0]
@@ -838,7 +840,7 @@ def initialize(show, win_caption):
     return win
 
 
-def run(win, net=None, program=None, routine=None):
+def run(win, net=None, routine=None):
     global alienkills
     global spaceshipkills
     global battleship
@@ -866,7 +868,7 @@ def run(win, net=None, program=None, routine=None):
         return 0  # stop the game, prevent training get stuck
 
     if show_game:
-        clock.tick(600)
+        clock.tick(120)
 
     redrawGameWindow(win)
 
@@ -893,45 +895,10 @@ def run(win, net=None, program=None, routine=None):
                 return 0
 
     if frames % 10 == 0:
-        # aliens_xy = [(999999999, 999999999), (999999999, 999999999)]
-        # for i, alien in enumerate(aliens):
-        #     aliens_xy[i] = (alien.x, alien.y)
-
-        # threat_lasers = [(999999999, 999999999), (999999999, 999999999)]
-        # i = 0
-        # for laser in enemy_lasers:
-        #     if battleship.hitbox[0]-10 < laser.x < battleship.hitbox[0] + battleship.hitbox[2] + 10:
-        #         if len(threat_lasers) == i:
-        #             threat_lasers.append((999999999, 999999999))
-        #         threat_lasers[i] = [battleship.y - (laser.y + laser.height), battleship.x - laser.x]
-        #         i += 1
-        # threat_lasers.sort(key=lambda x: x[0])
-
-        # enemy_spaceships_xy = [(999999999, 999999999)]
-        # for i, enemy_spaceship in enumerate(enemy_spaceships):
-        #     enemy_spaceships_xy[i] = (enemy_spaceship.x, enemy_spaceship.y)
-
-        # outputs = net.activate((battleship.health,
-        #                         battleship.x, screenbreite - battleship.breite - battleship.x,
-        #                         # aliens_xy[0][0]-battleship.x, aliens_xy[0][1]-battleship.y, 
-        #                         # aliens_xy[1][0]-battleship.x, aliens_xy[1][1]-battleship.y, 
-        #                         # enemy_spaceships_xy[0][0]-battleship.x, enemy_spaceships_xy[0][1]-battleship.y,
-        #                         threat_lasers[0][0], threat_lasers[0][1],
-        #                         threat_lasers[1][0], threat_lasers[1][1],
-        #                         ))
-
-        # keys = {
-        #     K_LEFT: outputs[0]>0.5,
-        #     K_RIGHT: outputs[0]<=0.5,
-        #     K_SPACE: True
-        # }
-
         aliens_x = [0, 0, 0]
-        aliens_y = [0, 0, 0]
         for a, alien in enumerate(aliens):
             if a < 3:
                 aliens_x[a] = alien.x
-                aliens_y[a] = alien.y
 
         laser_x = [0, 0, 0, 0, 0, 0]
         laser_y = [0, 0, 0, 0, 0, 0]
@@ -944,11 +911,9 @@ def run(win, net=None, program=None, routine=None):
                 laser_y[e] = enemy_laser_with_distance[0].y
 
         enemy_spaceships_x = [0]
-        enemy_spaceships_y = [0]
         for s, enemy_spaceship in enumerate(enemy_spaceships):
             if s < 1:
                 enemy_spaceships_x[s] = enemy_spaceship.x
-                enemy_spaceships_y[s] = enemy_spaceship.y
 
         if net:  # TODO pass to the network relevant information as input
             outputs = net.activate((battleship.x,
@@ -977,34 +942,23 @@ def run(win, net=None, program=None, routine=None):
                 K_SPACE: i == 1 or i == 3 or i == 5
             }
 
-        if program:  # TODO pass to the program relevant information as input
-            program.run(routine,
-                        battleship.x,
-                        # battleship.y,
-                        battleship.vel,
-                        # battleship.health,
-                        aliens_x[0],
-                        # aliens_y[0],
-                        aliens_x[1],
-                        # aliens_y[1],
-                        laser_x[0],
-                        laser_y[0],
-                        laser_x[1],
-                        laser_y[1],
-                        # laser_x[2],
-                        # laser_y[2],
-                        # laser_x[3],
-                        # laser_y[3],
-                        # laser_x[4],
-                        # laser_y[4],
-                        # laser_x[5],
-                        # laser_y[5],
-                        enemy_lasers_with_distance[0][1] if len(enemy_lasers_with_distance) > 0 else 999999,
-                        enemy_lasers_with_distance[0][1] if len(enemy_lasers_with_distance) > 1 else 999999,
-                        enemy_spaceships_x[0],
-                        # enemy_spaceships_y[0],
-                        )
-            keys = program.keys
+        if routine:  # TODO pass to the program relevant information as input
+            output = routine(battleship.x,
+                             battleship.vel,
+                             aliens_x[0],
+                             aliens_x[1],
+                             laser_x[0],
+                             laser_y[0],
+                             laser_x[1],
+                             laser_y[1],
+                             enemy_lasers_with_distance[0][1] if len(enemy_lasers_with_distance) > 0 else 999999,
+                             enemy_lasers_with_distance[0][1] if len(enemy_lasers_with_distance) > 1 else 999999,
+                             enemy_spaceships_x[0])
+            keys = {
+                K_LEFT: output == A or output == B,
+                K_RIGHT: output == E or output == F,
+                K_SPACE: output == A or output == C or output == E
+            }
 
     if keys[K_LEFT]:
         if battleship.x > battleship.vel:
@@ -1040,40 +994,32 @@ def run(win, net=None, program=None, routine=None):
                 lasers.pop(lasers.index(laser))
 
     for alien in aliens:
-        # print("alien:", alien.x, alien.y, alien.health)
-        # if alien.visible:
         for laser in lasers:
             if alien.hitbox[1] + alien.hitbox[3] > laser.y > alien.hitbox[1]:
                 if alien.hitbox[0] < laser.x < alien.hitbox[0] + alien.hitbox[2]:
                     alien.hit()
                     lasers.pop(lasers.index(laser))
-                    # print("hit alien")
             elif alien.hitbox[1] + alien.hitbox[3] > laser.y + laser.height > alien.hitbox[1]:
                 if alien.hitbox[0] < laser.x < alien.hitbox[0] + alien.hitbox[2]:
                     alien.hit()
                     lasers.pop(lasers.index(laser))
-                    # print("hit alien")
 
     for v in enemy_spaceships:
-        # print("enemy spaceships:", v.x, v.y, v.health)
         for laser in lasers:
             if v.hitbox[1] + v.hitbox[3] > laser.y > v.hitbox[1]:
                 if v.hitbox[0] < laser.x < v.hitbox[0] + v.hitbox[2]:
                     v.hit()
                     lasers.pop(lasers.index(laser))
-                    # print("hit enemy spaceship")
             elif v.hitbox[1] + v.hitbox[3] > laser.y + laser.height > v.hitbox[1]:
                 if v.hitbox[0] < laser.x < v.hitbox[0] + v.hitbox[2]:
                     v.hit()
                     lasers.pop(lasers.index(laser))
-                    # print("hit enemy spaceship")
 
     for laser in enemy_lasers:
         if battleship.hitbox[1] + battleship.hitbox[3] > laser.y + laser.height > battleship.hitbox[1]:
             if battleship.hitbox[0] < laser.x < battleship.hitbox[0] + battleship.hitbox[2]:
                 battleship.hit()
                 enemy_lasers.pop(enemy_lasers.index(laser))
-                # print("hit battleship")
 
     for laser in enemy_lasers:
         if laser.y < 470:
@@ -1083,25 +1029,15 @@ def run(win, net=None, program=None, routine=None):
 
     for alien in aliens:
         if alien.health <= 0:
-            # print("alien killed")
             aliens.pop(aliens.index(alien))
             alienkills += 1
 
     for v in enemy_spaceships:
         if v.health <= 0:
-            # print("enemy spaceship killed")
             enemy_spaceships.pop()
             spaceshipkills += 1
 
-    # print("battleship:", battleship.x, battleship.y, battleship.health)
     if battleship.health <= 0:
-        # if not ru:
-        #     go = gameover(win)
-        #     if go == 0 or go == 1:
-        #         ru = True
-        #         return go
-        # ru = False
-        # print("game over")
         return 0
 
     if len(aliens) == 0 and len(enemy_spaceships) == 0:
@@ -1109,24 +1045,8 @@ def run(win, net=None, program=None, routine=None):
         enemy_lasers = []
         battleship.x = 150
 
-        # if levelcounter == 4: 
-        #     if battleship.health == 50:
-        #         print("-----------------------------------------------------------")
-        #     return 0
         redrawGameWindow(win)
         generateLevel(win, 0)
         battleship_healths.append(battleship.health)
-
-    # keys=pygame.key.get_pressed()
-    # if pausebutton or keys[pygame.K_ESCAPE]:
-    #     pausebutton=False
-    #     pau=True
-    #     while pau:
-    #         g=pause(win)
-    #         if g==1:
-    #             pau=False
-    #         elif g==0:
-    #             pau=False
-    #             return 1
 
     return 1

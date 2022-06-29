@@ -1,3 +1,5 @@
+import shutil
+
 from pylab import *
 
 import argparse
@@ -8,8 +10,8 @@ import sys
 import pickle
 import traceback
 
-import neat
 import pygame
+import neat
 import numpy
 
 from deap import algorithms
@@ -22,45 +24,27 @@ import gamerun
 import plot_utils
 import visualize
 
-from gp_train import AgentSimulator, if_then_else, Output, A, B, C, D, E, F
+from gp_train import if_then_else, Output, A, B, C, D, E, F
 
 
-def simulate_game(show_game, name="", net=None, program=None, routine=None):
+def simulate_game(show_game, name="", net=None, routine=None):
     win = gamerun.initialize(show_game, name)
 
     game = True
     while game:
-        result = gamerun.run(win, net=net, program=program, routine=routine)
+        result = gamerun.run(win, net=net, routine=routine)
         if result == 0:
             game = False
 
     if gamerun.show_game:
         pygame.quit()
 
-    # if gamerun.level > s.readlevel():
-    #     s.save(gamerun.level, gamerun.alienkills, gamerun.spaceshipkills, gamerun.timee, gamerun.totaltestseconds)
-    # elif gamerun.totaltestseconds > s.readseconds() and gamerun.level == s.readlevel():
-    #     s.save(gamerun.level, gamerun.alienkills, gamerun.spaceshipkills, gamerun.timee, gamerun.totaltestseconds)
-
-    # TODO find the best fitness based on gamerun.level, gamerun.alienkills, gamerun.spaceshipkills, gamerun.frame
-    # fitness = (gamerun.level - 1) * 100 + gamerun.alienkills * 10 + gamerun.spaceshipkills * 50 # - gamerun.frames // 100000
-    
-    # health_fitness = 0
-    # h_prec = gamerun.battleship_healths[0]
-    # for i, h in enumerate(gamerun.battleship_healths[1:]):
-    #     health_fitness += (h_prec - h)**2
-    # health_fitness += gamerun.battleship_healths[-1]**2
-    # health_fitness /= 10.0
-
     fitness = gamerun.alienkills * 10 + gamerun.spaceshipkills * 50 + gamerun.battleship_healths[-1]/10.0
-    # fitness = gamerun.alienkills * 100 + gamerun.spaceshipkills * 500 - gamerun.frames / 10000.0 - health_fitness
-    # fitness = gamerun.frames
 
     print(f"{fitness} -> {gamerun.level} {gamerun.alienkills} {gamerun.spaceshipkills} {gamerun.frames} {gamerun.battleship_healths}")
     # TODO valutare se rimuove il numero di frame dal fitness? (kind of penalty for escaping?)
     # TODO magari valutare i colpi dati ai nemici (da massimizzare) e minimizzare quelli andati a vuoto?
     # TODO magari valutare i colpi presi dai nemici (da minimizzare, i.e., subirli più avanti in livelli più complessi)?
-    # TODO reason if makes sense to have a stopping criterion related to time (and not only death) --> this will be translated in find the best score for the considered max time
     return fitness
 
 
@@ -70,11 +54,11 @@ def eval_genomes(genomes, config):
         genome.fitness = simulate_game(show_game=False, net=net)
 
 
-def evalArtificialAgent(individual):
+def eval_program(program):
     # Transform the tree expression to functionnal Python code
-    routine = gp.compile(individual, pset)
+    routine = gp.compile(program, pset)
     # Run the generated routine
-    return simulate_game(show_game=False, program=agent, routine=routine),
+    return simulate_game(show_game=False, routine=routine),
 
 
 def load_best_neat():
@@ -102,15 +86,11 @@ def save_best_neat(genome, network, config, stats):
 
     best_genome, _ = load_best_neat()
     if best_genome is None or best_genome.fitness < genome.fitness:
-        path = 'runs/NEAT/best/'
-        if not os.path.isdir(path):
-            os.mkdir(path)
+        best_dirname = 'runs/NEAT/best/'
+        if not os.path.isdir(best_dirname):
+            os.mkdir(best_dirname)
 
-        pickle.dump(genome, open(os.path.join(path, 'genome.pkl'), "wb"))
-        pickle.dump(network, open(os.path.join(path, 'network.pkl'), "wb"))
-        visualize.draw_net(config, genome, filename=f"{path}representation", view=False)
-        visualize.plot_stats(stats, view=True, filename=f"{path}avg_fitness.png")
-        visualize.plot_species(stats, view=True, filename=f"{path}speciation.png")
+        shutil.copytree(dirname, best_dirname)
 
 
 def load_best_gp():
@@ -124,50 +104,48 @@ def load_best_gp():
     return program
 
 
-def save_best_gp(program):
+def save_best_gp(program, logbook):
     now = f"{datetime.datetime.now().isoformat()}".replace(':', '.')
     dirname = f"runs/GP/{now}_fitness_{program.fitness.values[0]}"
     os.mkdir(dirname)
     pickle.dump(program, open(os.path.join(dirname, 'program.pkl'), "wb"))
     nodes, edges, labels = gp.graph(program)
-    plot_utils.plotTree(nodes, edges, labels, "best", dirname)
-    plot_utils.plotTrends(logbook, "best", dirname)
+    plot_utils.plot_tree(nodes, edges, labels, "best", dirname)
+    if logbook is not None:
+        plot_utils.plot_trends(logbook, "best", dirname)
 
     best_program = load_best_gp()
     if best_program is None or best_program.fitness.values[0] < program.fitness.values[0]:
-        path = 'runs/GP/best/'
-        if not os.path.isdir(path):
-            os.mkdir(path)
+        best_dirname = 'runs/GP/best/'
+        if not os.path.isdir(best_dirname):
+            os.mkdir(best_dirname)
 
-        pickle.dump(program, open(os.path.join(path, 'program.pkl'), "wb"))
-        plot_utils.plotTree(nodes, edges, labels, "best", path)
-        plot_utils.plotTrends(logbook, "best", path)
-
+        shutil.copytree(dirname, best_dirname)
 
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description="NEAT Spaceship")
+    parser = argparse.ArgumentParser(description="Bio Inspired Spaceship")
     parser.add_argument("--run_best_neat", action="store_true", help="Run the best individual found using NEAT")
     parser.add_argument("--run_best_gp", action="store_true", help="Run the best individual found using GP")
     parser.add_argument("--neat", action="store_true", help="Run the NEAT algorithm for training of the NN")
     parser.add_argument("--gp", action="store_true", help="Run the GP algorithm for finding a program")
-    parser.add_argument("--config_file", type=str, default=None, help="Configuration file")
-    parser.add_argument("--num_runs", type=int, default=1, help="The number of runs")
-    parser.add_argument("--num_generations", type=int, default=10, help="The number of generations for each run")
     args = parser.parse_args()
 
-    if len(sys.argv)==1:
+    if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
         sys.exit(1)
 
     if args.neat:
         # Load configuration.
-        local_dir = os.path.dirname(__file__)
-        config_file = os.path.join(local_dir, args.config_file) if args.config_file else 'configNEAT.txt'
+        config_file = 'configNEAT.txt'
+        config_parser = configparser.ConfigParser()
+        config_parser.read(config_file)
+        num_runs = int(config_parser['RUNS']['num_runs'])
+        num_generations = int(config_parser['GENERATIONS']['num_generations'])
         config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet, neat.DefaultStagnation, config_file)
 
-        if args.num_runs == 1:
+        if num_runs == 1:
             # Create the population.
             p = neat.Population(config)
 
@@ -178,8 +156,8 @@ if __name__ == "__main__":
 
             # Run NEAT for num_generations.
             try:
-                genome = p.run(eval_genomes, args.num_generations)
-            except Exception as e:
+                genome = p.run(eval_genomes, num_generations)
+            except (Exception, KeyboardInterrupt) as e:
                 print(e)
                 traceback.print_exc()
                 genome = p.best_genome
@@ -200,8 +178,8 @@ if __name__ == "__main__":
             results = []
             best_fitnesses = []
             try:
-                for i in range(args.num_runs):
-                    print(f"run {i + 1}/{args.num_runs}")
+                for i in range(num_runs):
+                    print(f"run {i + 1}/{num_runs}")
 
                     # Create the population.
                     p = neat.Population(config)
@@ -212,7 +190,7 @@ if __name__ == "__main__":
                     p.add_reporter(stats)
 
                     # Run NEAT for num_generations.
-                    genome = p.run(eval_genomes, args.num_generations)
+                    genome = p.run(eval_genomes, num_generations)
 
                     # Display the winning genome.
                     print(f"\nBest genome:\n{genome}")
@@ -225,7 +203,7 @@ if __name__ == "__main__":
                     # Store best fitness for statistical analysis.
                     best_fitnesses.append(genome.fitness)
 
-            except Exception as e:
+            except (Exception, KeyboardInterrupt) as e:
                 print(e)
                 traceback.print_exc()
 
@@ -237,21 +215,16 @@ if __name__ == "__main__":
             show()
 
     if args.run_best_neat:
-        genome, network = load_best_neat()
+        _, network = load_best_neat()
         if network is None:
             print("network not present")
         else:
             simulate_game(show_game=True, name="NEAT Spaceship!", net=network)
 
-
     if args.gp or args.run_best_gp:
-        agent = AgentSimulator()
-
         pset = gp.PrimitiveSetTyped("MAIN", [float] * 11, Output)
         pset.addPrimitive(if_then_else, [bool, float, float], float)
         pset.addPrimitive(if_then_else, [bool, Output, Output], Output)
-        # pset.addPrimitive(operator.add, 2)
-        # pset.addPrimitive(operator.sub, 2)
         pset.addPrimitive(operator.gt, [float, float], bool)
         pset.addPrimitive(operator.eq, [float, float], bool)
         pset.addPrimitive(operator.and_, [bool, bool], bool)
@@ -261,17 +234,6 @@ if __name__ == "__main__":
         pset.addPrimitive(operator.sub, [float, float], float)
         pset.addPrimitive(operator.mul, [float, float], float)
 
-        # pset.addPrimitive(eval_function, [dict], float)
-        # pset.addPrimitive(exec2, 2)
-        # pset.addPrimitive(exec3, 3)
-        # pset.addPrimitive(exec_while, 2)
-        # pset.addTerminal(agent.action_left)
-        # pset.addTerminal(agent.action_left_and_fire)
-        # pset.addTerminal(agent.action_still)
-        # pset.addTerminal(agent.action_still_and_fire)
-        # pset.addTerminal(agent.action_right)
-        # pset.addTerminal(agent.action_right_and_fire)
-        # pset.addTerminal(laser_distance, dict)
         pset.addTerminal(5.0, float)
         pset.addTerminal(10.0, float)
         pset.addTerminal(15.0, float)
@@ -291,29 +253,35 @@ if __name__ == "__main__":
         creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMax)
 
         if args.gp:
-            config_file = args.config_file if args.config_file else 'configGP.txt'
-            config = configparser.ConfigParser() # TODO: decide where to put num_runs and num_generations
+            config_file = 'configGP.txt'
+            config = configparser.ConfigParser()
             config.read(config_file)
-            num_runs = int(config['GP']['num_runs'])
-            num_generations = int(config['GP']['num_generations'])
+            num_runs = int(config['RUNS']['num_runs'])
+            num_generations = int(config['GENERATIONS']['num_generations'])
             pop_size = int(config['GP']['pop_size'])
-            mating_prob = float(config['GP']['mating_prob'])
+            crossover_prob = float(config['GP']['crossover_prob'])
             mutation_prob = float(config['GP']['mutation_prob'])
             tournament_size = int(config['GP']['tournament_size'])
             hof_size = int(config['GP']['hof_size'])
+            max_tree_size = int(config['GP']['max_tree_size'])
 
             toolbox = base.Toolbox()
 
             # Attribute generator
             toolbox.register("expr_init", gp.genFull, pset=pset, min_=1, max_=3)
+
             # Structure initializers
             toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.expr_init)
             toolbox.register("population", tools.initRepeat, list, toolbox.individual)
-            toolbox.register("evaluate", evalArtificialAgent)
+            toolbox.register("evaluate", eval_program)
             toolbox.register("select", tools.selTournament, tournsize=tournament_size)
             toolbox.register("mate", gp.cxOnePoint)
             toolbox.register("expr_mut", gp.genFull, min_=0, max_=2)
             toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
+
+            # BLOAT control
+            toolbox.decorate("mate", gp.staticLimit(operator.attrgetter("height"), max_tree_size))
+            toolbox.decorate("mutate", gp.staticLimit(operator.attrgetter("height"), max_tree_size))
 
             if num_runs == 1:
                 pop = toolbox.population(n=pop_size)
@@ -325,17 +293,18 @@ if __name__ == "__main__":
                 stats.register("max", numpy.max)
 
                 try:
-                    final_pop, logbook = algorithms.eaSimple(pop, toolbox, mating_prob, mutation_prob, num_generations, stats, halloffame=hof)
-                except Exception as e:
+                    final_pop, logbook = algorithms.eaSimple(pop, toolbox, crossover_prob, mutation_prob, num_generations, stats, halloffame=hof)
+                except (Exception, KeyboardInterrupt) as e:
                     print(e)
                     traceback.print_exc()
+                    logbook = None
 
                 print("Best individual GP is: %s, with fitness: %s" % (hof[0], hof[0].fitness.values[0]))
-                save_best_gp(hof[0])  # TODO control the size of the tree
+                save_best_gp(hof[0], logbook)
 
                 # Run the best routine
                 routine = gp.compile(hof[0], pset)
-                simulate_game(show_game=True, name="GP Spaceship!", program=agent, routine=routine)
+                simulate_game(show_game=True, name="GP Spaceship!", routine=routine)
 
             else:
                 results = []
@@ -352,15 +321,14 @@ if __name__ == "__main__":
                         stats.register("min", numpy.min)
                         stats.register("max", numpy.max)
 
-                        final_pop, logbook = algorithms.eaSimple(pop, toolbox, mating_prob, mutation_prob, num_generations, stats, halloffame=hof)
+                        final_pop, logbook = algorithms.eaSimple(pop, toolbox, crossover_prob, mutation_prob, num_generations, stats, halloffame=hof)
                         print("Best individual GP is: %s, with fitness: %s" % (hof[0], hof[0].fitness.values[0]))
-
-                        save_best_gp(hof[0])
+                        save_best_gp(hof[0], logbook)
 
                         # Store best fitness for statistical analysis.
                         best_fitnesses.append(hof[0].fitness.values[0])
 
-                except Exception as e:
+                except (Exception, KeyboardInterrupt) as e:
                     print(e)
                     traceback.print_exc()
 
@@ -377,5 +345,5 @@ if __name__ == "__main__":
             if program is None:
                 print("program not present")
             else:
-                routine = gp.compile(program, pset)  # TODO store only the routine and avoid to compile it
-                simulate_game(show_game=True, name="GP Spaceship!", program=agent, routine=routine)
+                routine = gp.compile(program, pset)
+                simulate_game(show_game=True, name="GP Spaceship!", routine=routine)
