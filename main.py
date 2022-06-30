@@ -117,7 +117,7 @@ if __name__ == "__main__":
             simulate_game(show_game=True, name="NEAT Spaceship!", net=network)
 
     if args.gp or args.run_best_gp:
-        primitive_set = gp.PrimitiveSetTyped("MAIN", [float] * 11, Output)
+        primitive_set = gp.PrimitiveSetTyped("MAIN", [float] * 9, Output)
         primitive_set.addPrimitive(if_then_else, [bool, float, float], float)
         primitive_set.addPrimitive(if_then_else, [bool, Output, Output], Output)
         primitive_set.addPrimitive(operator.gt, [float, float], bool)

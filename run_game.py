@@ -2,7 +2,7 @@ import pygame
 import time
 import numpy as np
 
-from gp_train import A, B, C, E, F
+from gp_train import A, B, D, E, F
 
 show_game = False
 game_background = None
@@ -563,13 +563,13 @@ def run(win, net=None, routine=None):
                              laser_y[0],
                              laser_x[1],
                              laser_y[1],
-                             enemy_lasers_with_distance[0][1] if len(enemy_lasers_with_distance) > 0 else 999999,
-                             enemy_lasers_with_distance[0][1] if len(enemy_lasers_with_distance) > 1 else 999999,
+                             # enemy_lasers_with_distance[0][1] if len(enemy_lasers_with_distance) > 0 else 999999,
+                             # enemy_lasers_with_distance[0][1] if len(enemy_lasers_with_distance) > 1 else 999999,
                              enemy_spaceships_x[0])
             keys = {
                 K_LEFT: output == A or output == B,
                 K_RIGHT: output == E or output == F,
-                K_SPACE: output == A or output == C or output == E
+                K_SPACE: output == B or output == D or output == F
             }
 
     if keys[K_LEFT]:
