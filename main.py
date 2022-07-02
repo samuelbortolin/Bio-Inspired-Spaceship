@@ -1,7 +1,8 @@
-from pylab import *
+import matplotlib.pyplot as plt
 
 import argparse
 import configparser
+import datetime
 import operator
 import sys
 import traceback
@@ -70,7 +71,6 @@ if __name__ == "__main__":
             print(f"\nBest fitness simulation:\n{best_fitness}")
 
         else:
-            results = []
             best_fitnesses = []
             try:
                 for i in range(num_runs):
@@ -93,7 +93,7 @@ if __name__ == "__main__":
                     # Create the winning network.
                     network = neat.nn.FeedForwardNetwork.create(genome, config)
 
-                    save_best_neat(genome, network, config, stats)
+                    save_best_neat(genome, network, config, stats, view=False)
 
                     # Store best fitness for statistical analysis.
                     best_fitnesses.append(genome.fitness)
@@ -102,12 +102,13 @@ if __name__ == "__main__":
                 print(e)
                 traceback.print_exc()
 
-            results.append(best_fitnesses)
-            fig = figure("NEAT-Spaceship")
+            fig = plt.figure("NEAT-Spaceship")
             ax = fig.gca()
-            ax.boxplot(results)
+            ax.boxplot([best_fitnesses])
             ax.set_ylabel("Best fitness")
-            show()
+            now = f"{datetime.datetime.now().isoformat()}".replace(':', '_')
+            fig.savefig(f'runs/NEAT/NEAT_{now}.png', dpi=fig.dpi)
+            plt.show()
 
     if args.run_best_neat:
         _, network = load_best_neat()
@@ -202,7 +203,6 @@ if __name__ == "__main__":
                 simulate_game(show_game=True, name="GP Spaceship!", routine=routine)
 
             else:
-                results = []
                 best_fitnesses = []
                 try:
                     for i in range(num_runs):
@@ -218,7 +218,7 @@ if __name__ == "__main__":
 
                         final_pop, logbook = algorithms.eaSimple(pop, toolbox, crossover_prob, mutation_prob, num_generations, stats, halloffame=hof)
                         print("Best individual GP is: %s, with fitness: %s" % (hof[0], hof[0].fitness.values[0]))
-                        save_best_gp(hof[0], logbook)
+                        save_best_gp(hof[0], logbook, view=False)
 
                         # Store best fitness for statistical analysis.
                         best_fitnesses.append(hof[0].fitness.values[0])
@@ -227,12 +227,13 @@ if __name__ == "__main__":
                     print(e)
                     traceback.print_exc()
 
-                results.append(best_fitnesses)
-                fig = figure("GP-Spaceship")
+                fig = plt.figure("GP-Spaceship")
                 ax = fig.gca()
-                ax.boxplot(results)
+                ax.boxplot([best_fitnesses])
                 ax.set_ylabel("Best fitness")
-                show()
+                now = f"{datetime.datetime.now().isoformat()}".replace(':', '_')
+                fig.savefig(f'runs/GP/GP_{now}.png', dpi=fig.dpi)
+                plt.show()
 
         if args.run_best_gp:
             # Run the best routine

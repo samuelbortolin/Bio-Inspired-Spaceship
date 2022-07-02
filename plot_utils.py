@@ -23,7 +23,7 @@ def plot_stats(statistics, ylog=False, view=False, filename='avg_fitness.png'):
     avg_fitness = np.array(statistics.get_fitness_mean())
     stdev_fitness = np.array(statistics.get_fitness_stdev())
 
-    plt.figure("NEAT (Population's average/std. dev and best fitness)")
+    fig = plt.figure("NEAT (Population's average/std. dev and best fitness)")
 
     plt.plot(generation, avg_fitness, 'b-', label="average")
     plt.plot(generation, avg_fitness - stdev_fitness, 'g-.', label="-1 sd")
@@ -41,6 +41,8 @@ def plot_stats(statistics, ylog=False, view=False, filename='avg_fitness.png'):
     plt.savefig(filename)
     if view:
         plt.show()
+    else:
+        plt.close(fig)
 
 
 def plot_species(statistics, view=False, filename='speciation.png'):
@@ -66,6 +68,8 @@ def plot_species(statistics, view=False, filename='speciation.png'):
     if view:
         plt.show()
         fig = None
+    else:
+        plt.close(fig)
 
     return fig
 
@@ -150,7 +154,7 @@ def draw_net(config, genome, view=False, filename=None, node_names=None, show_di
     return dot
 
 
-def plot_trends(logbook, name, folder=None):
+def plot_trends(logbook, name, view=False, folder=None):
     gen = logbook.select("gen")
     fit_min = logbook.select("min")
     fit_max = logbook.select("max")
@@ -168,10 +172,14 @@ def plot_trends(logbook, name, folder=None):
     ax1.set_xlim(0, len(gen) - 1)
     ax1.legend()
     plt.savefig(folder + '/' + 'trends_' + name + '.png')
-    plt.show()
+
+    if view:
+        plt.show()
+    else:
+        plt.close(fig)
 
 
-def plot_tree(nodes, edges, labels, name, folder=None):
+def plot_tree(nodes, edges, labels, name, view=False, folder=None):
     if folder is not None and not os.path.exists(folder):
         os.makedirs(folder)
 
@@ -188,7 +196,7 @@ def plot_tree(nodes, edges, labels, name, folder=None):
 
     if import_module('networkx'):
         import networkx as nx
-        plt.figure("GP (best tree)")
+        fig = plt.figure("GP (best tree)")
         g = nx.Graph()
         g.add_nodes_from(nodes)
         g.add_edges_from(edges)
@@ -197,7 +205,11 @@ def plot_tree(nodes, edges, labels, name, folder=None):
         nx.draw_networkx_edges(g, pos)
         nx.draw_networkx_labels(g, pos, labels)
         plt.savefig(folder + '/' + 'tree_' + name + '.png')
-        plt.show()
+
+        if view:
+            plt.show()
+        else:
+            plt.close(fig)
 
 
 def import_module(module):

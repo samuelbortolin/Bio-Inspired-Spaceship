@@ -61,15 +61,15 @@ def load_best_neat():
     return genome, network
 
 
-def save_best_neat(genome, network, config, stats):
+def save_best_neat(genome, network, config, stats, view=True):
     now = f"{datetime.datetime.now().isoformat()}".replace(':', '.')
     dirname = f"runs/NEAT/{now}_fitness_{genome.fitness}"
     os.mkdir(dirname)
     pickle.dump(genome, open(os.path.join(dirname, 'genome.pkl'), "wb"))
     pickle.dump(network, open(os.path.join(dirname, 'network.pkl'), "wb"))
     plot_utils.draw_net(config, genome, filename=f"{dirname}/representation", view=False)
-    plot_utils.plot_stats(stats, view=True, filename=f"{dirname}/avg_fitness.png")
-    plot_utils.plot_species(stats, view=True, filename=f"{dirname}/speciation.png")
+    plot_utils.plot_stats(stats, view=view, filename=f"{dirname}/avg_fitness.png")
+    plot_utils.plot_species(stats, view=view, filename=f"{dirname}/speciation.png")
 
     best_genome, _ = load_best_neat()
     if best_genome is None or best_genome.fitness < genome.fitness:
@@ -91,15 +91,15 @@ def load_best_gp():
     return program
 
 
-def save_best_gp(program, logbook):
+def save_best_gp(program, logbook, view=True):
     now = f"{datetime.datetime.now().isoformat()}".replace(':', '.')
     dirname = f"runs/GP/{now}_fitness_{program.fitness.values[0]}"
     os.mkdir(dirname)
     pickle.dump(program, open(os.path.join(dirname, 'program.pkl'), "wb"))
     nodes, edges, labels = gp.graph(program)
-    plot_utils.plot_tree(nodes, edges, labels, "best", dirname)
+    plot_utils.plot_tree(nodes, edges, labels, "best", view=view, folder=dirname)
     if logbook is not None:
-        plot_utils.plot_trends(logbook, "best", dirname)
+        plot_utils.plot_trends(logbook, "best", view=view, folder=dirname)
 
     best_program = load_best_gp()
     if best_program is None or best_program.fitness.values[0] < program.fitness.values[0]:
