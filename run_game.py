@@ -530,23 +530,22 @@ def run(win, net=None, routine=None):
         if net:  # TODO pass to the network relevant information as input
             outputs = net.activate((battleship.x,
                                     battleship.vel,
-                                    battleship.health,
+                                    # battleship.health,
                                     aliens_x[0],
                                     aliens_x[1],
                                     laser_x[0],
                                     laser_y[0],
                                     laser_x[1],
                                     laser_y[1],
-                                    laser_x[2],
-                                    laser_y[2],
-                                    laser_x[3],
-                                    laser_y[3],
-                                    laser_x[4],
-                                    laser_y[4],
-                                    laser_x[5],
-                                    laser_y[5],
-                                    enemy_spaceships_x[0]
-                                    ))
+                                    # laser_x[2],
+                                    # laser_y[2],
+                                    # laser_x[3],
+                                    # laser_y[3],
+                                    # laser_x[4],
+                                    # laser_y[4],
+                                    # laser_x[5],
+                                    # laser_y[5],
+                                    enemy_spaceships_x[0]))
             i = np.argmax(np.array(outputs))
             keys = {
                 K_LEFT: i == 0 or i == 1,

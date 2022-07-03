@@ -70,6 +70,7 @@ def save_best_neat(genome, network, config, stats, view=True):
     plot_utils.draw_net(config, genome, filename=f"{dirname}/representation", view=False)
     plot_utils.plot_stats(stats, view=view, filename=f"{dirname}/avg_fitness.png")
     plot_utils.plot_species(stats, view=view, filename=f"{dirname}/speciation.png")
+    pickle.dump(stats, open(os.path.join(dirname, 'stats.pkl'), "wb"))
 
     best_genome, _ = load_best_neat()
     if best_genome is None or best_genome.fitness < genome.fitness:
@@ -100,6 +101,7 @@ def save_best_gp(program, logbook, view=True):
     plot_utils.plot_tree(nodes, edges, labels, "best", view=view, folder=dirname)
     if logbook is not None:
         plot_utils.plot_trends(logbook, "best", view=view, folder=dirname)
+        pickle.dump(logbook, open(os.path.join(dirname, 'logbook.pkl'), "wb"))
 
     best_program = load_best_gp()
     if best_program is None or best_program.fitness.values[0] < program.fitness.values[0]:
