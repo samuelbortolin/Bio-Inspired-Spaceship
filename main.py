@@ -72,42 +72,47 @@ if __name__ == "__main__":
 
         else:
             best_fitnesses = []
-            try:
-                for i in range(num_runs):
-                    print(f"run {i + 1}/{num_runs}")
+            interrupted = False
+            for i in range(num_runs):
+                print(f"run {i + 1}/{num_runs}")
 
-                    # Create the population.
-                    p = neat.Population(config)
+                # Create the population.
+                p = neat.Population(config)
 
-                    # Add a stdout reporter to show progress in the terminal.
-                    stats = neat.StatisticsReporter()
-                    p.add_reporter(neat.StdOutReporter(True))
-                    p.add_reporter(stats)
+                # Add a stdout reporter to show progress in the terminal.
+                stats = neat.StatisticsReporter()
+                p.add_reporter(neat.StdOutReporter(True))
+                p.add_reporter(stats)
 
-                    # Run NEAT for num_generations.
+                # Run NEAT for num_generations.
+                try:
                     genome = p.run(eval_genomes, num_generations)
+                except (Exception, KeyboardInterrupt) as e:
+                    print(e)
+                    traceback.print_exc()
+                    genome = p.best_genome
+                    interrupted = True
 
-                    # Display the winning genome.
-                    print(f"\nBest genome:\n{genome}")
+                # Display the winning genome.
+                print(f"\nBest genome:\n{genome}")
 
-                    # Create the winning network.
-                    network = neat.nn.FeedForwardNetwork.create(genome, config)
+                # Create the winning network.
+                network = neat.nn.FeedForwardNetwork.create(genome, config)
 
-                    save_best_neat(genome, network, config, stats, view=False)
+                save_best_neat(genome, network, config, stats, view=False)
 
-                    # Store best fitness for statistical analysis.
-                    best_fitnesses.append(genome.fitness)
+                # Store best fitness for statistical analysis.
+                best_fitnesses.append(genome.fitness)
 
-            except (Exception, KeyboardInterrupt) as e:
-                print(e)
-                traceback.print_exc()
+                if interrupted:
+                    break
 
             fig = plt.figure("NEAT-Spaceship")
             ax = fig.gca()
             ax.boxplot([best_fitnesses])
             ax.set_xticklabels([])
             ax.set_ylabel("Best fitness")
-            fig.suptitle(f'NEAT-Spaceship ({num_runs} runs)', fontsize=16)
+            fig.suptitle(f'NEAT-Spaceship ({len(best_fitnesses)} runs)', fontsize=16)
             now = f"{datetime.datetime.now().isoformat()}".replace(':', '_')
             fig.savefig(f'runs/NEAT/NEAT_{now}.png', dpi=fig.dpi)
             plt.show()
@@ -206,35 +211,39 @@ if __name__ == "__main__":
 
             else:
                 best_fitnesses = []
-                try:
-                    for i in range(num_runs):
-                        print(f"run {i + 1}/{num_runs}")
+                for i in range(num_runs):
+                    print(f"run {i + 1}/{num_runs}")
 
-                        pop = toolbox.population(n=pop_size)
-                        hof = tools.HallOfFame(hof_size)
-                        stats = tools.Statistics(lambda ind: ind.fitness.values)
-                        stats.register("avg", numpy.mean)
-                        stats.register("std", numpy.std)
-                        stats.register("min", numpy.min)
-                        stats.register("max", numpy.max)
+                    pop = toolbox.population(n=pop_size)
+                    hof = tools.HallOfFame(hof_size)
+                    stats = tools.Statistics(lambda ind: ind.fitness.values)
+                    stats.register("avg", numpy.mean)
+                    stats.register("std", numpy.std)
+                    stats.register("min", numpy.min)
+                    stats.register("max", numpy.max)
 
+                    try:
                         final_pop, logbook = algorithms.eaSimple(pop, toolbox, crossover_prob, mutation_prob, num_generations, stats, halloffame=hof)
-                        print("Best individual GP is: %s, with fitness: %s" % (hof[0], hof[0].fitness.values[0]))
-                        save_best_gp(hof[0], logbook, view=False)
+                    except (Exception, KeyboardInterrupt) as e:
+                        print(e)
+                        traceback.print_exc()
+                        logbook = None
+                    
+                    print("Best individual GP is: %s, with fitness: %s" % (hof[0], hof[0].fitness.values[0]))
+                    save_best_gp(hof[0], logbook, view=False)
 
-                        # Store best fitness for statistical analysis.
-                        best_fitnesses.append(hof[0].fitness.values[0])
+                    # Store best fitness for statistical analysis.
+                    best_fitnesses.append(hof[0].fitness.values[0])
 
-                except (Exception, KeyboardInterrupt) as e:
-                    print(e)
-                    traceback.print_exc()
+                    if logbook is None:
+                        break
 
                 fig = plt.figure("GP-Spaceship")
                 ax = fig.gca()
                 ax.boxplot([best_fitnesses])
                 ax.set_xticklabels([])
                 ax.set_ylabel("Best fitness")
-                fig.suptitle(f'GP-Spaceship ({num_runs} runs)', fontsize=16)
+                fig.suptitle(f'GP-Spaceship ({len(best_fitnesses)} runs)', fontsize=16)
                 now = f"{datetime.datetime.now().isoformat()}".replace(':', '_')
                 fig.savefig(f'runs/GP/GP_{now}.png', dpi=fig.dpi)
                 plt.show()
