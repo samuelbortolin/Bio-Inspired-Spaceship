@@ -268,8 +268,8 @@ keys = {
 }
 battleship_healths = []
 aliens_x = [0, 0]
-laser_x = [0, 0, 0, 0, 0, 0]
-laser_y = [0, 0, 0, 0, 0, 0]
+laser_x = [0, 0]
+laser_y = [0, 0]
 enemy_spaceships_x = [0]
 
 
@@ -458,8 +458,8 @@ def initialize(show, win_caption):
     }
     battleship_healths = []
     aliens_x = [0, 0]
-    laser_x = [0, 0, 0, 0, 0, 0]
-    laser_y = [0, 0, 0, 0, 0, 0]
+    laser_x = [0, 0]
+    laser_y = [0, 0]
     enemy_spaceships_x = [0]
     return win
 
@@ -512,13 +512,13 @@ def run(win, net=None, routine=None):
             if a < 3:
                 aliens_x[a] = alien.x
 
-        laser_x = [0, 0, 0, 0, 0, 0]
-        laser_y = [0, 0, 0, 0, 0, 0]
+        laser_x = [0, 0]
+        laser_y = [0, 0]
         # Give as input the 5 closer enemy lasers
         enemy_lasers_with_distance = [(laser, pow(pow(laser.x - battleship.x, 2) + pow(laser.y - battleship.y, 2), 1 / 2)) for laser in enemy_lasers]
         enemy_lasers_with_distance.sort(key=lambda x: x[1])
         for e, enemy_laser_with_distance in enumerate(enemy_lasers_with_distance):
-            if e < 6:
+            if e < 2:
                 laser_x[e] = enemy_laser_with_distance[0].x
                 laser_y[e] = enemy_laser_with_distance[0].y
 
@@ -527,24 +527,15 @@ def run(win, net=None, routine=None):
             if s < 1:
                 enemy_spaceships_x[s] = enemy_spaceship.x
 
-        if net:  # TODO pass to the network relevant information as input
+        if net:
             outputs = net.activate((battleship.x,
                                     battleship.vel,
-                                    # battleship.health,
                                     aliens_x[0],
                                     aliens_x[1],
                                     laser_x[0],
                                     laser_y[0],
                                     laser_x[1],
                                     laser_y[1],
-                                    # laser_x[2],
-                                    # laser_y[2],
-                                    # laser_x[3],
-                                    # laser_y[3],
-                                    # laser_x[4],
-                                    # laser_y[4],
-                                    # laser_x[5],
-                                    # laser_y[5],
                                     enemy_spaceships_x[0]))
             i = np.argmax(np.array(outputs))
             keys = {
@@ -553,7 +544,7 @@ def run(win, net=None, routine=None):
                 K_SPACE: i == 1 or i == 3 or i == 5
             }
 
-        if routine:  # TODO pass to the program relevant information as input
+        if routine:
             output = routine(battleship.x,
                              battleship.vel,
                              aliens_x[0],
@@ -562,8 +553,6 @@ def run(win, net=None, routine=None):
                              laser_y[0],
                              laser_x[1],
                              laser_y[1],
-                             # enemy_lasers_with_distance[0][1] if len(enemy_lasers_with_distance) > 0 else 999999,
-                             # enemy_lasers_with_distance[0][1] if len(enemy_lasers_with_distance) > 1 else 999999,
                              enemy_spaceships_x[0])
             keys = {
                 K_LEFT: output == A or output == B,

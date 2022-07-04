@@ -178,7 +178,7 @@ if __name__ == "__main__":
             toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.expr_init)
             toolbox.register("population", tools.initRepeat, list, toolbox.individual)
             toolbox.register("evaluate", eval_program, primitive_set=primitive_set)
-            toolbox.register("select", tools.selDoubleTournament, fitness_size=tournament_size, parsimony_size=1.0, fitness_first=True)
+            toolbox.register("select", tools.selTournament, tournsize=tournament_size)
             toolbox.register("mate", gp.cxOnePoint)
             toolbox.register("expr_mut", gp.genFull, min_=0, max_=2)
             toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=primitive_set)
@@ -199,7 +199,7 @@ if __name__ == "__main__":
                 stats.register("max", numpy.max)
 
                 try:
-                    final_pop, logbook = algorithms.eaMuPlusLambda(pop, toolbox, pop_size, pop_size, crossover_prob, mutation_prob, num_generations, stats, halloffame=hof)
+                    final_pop, logbook = algorithms.eaSimple(pop, toolbox, crossover_prob, mutation_prob, num_generations, stats, halloffame=hof)
                 except (Exception, KeyboardInterrupt) as e:
                     print(e)
                     traceback.print_exc()

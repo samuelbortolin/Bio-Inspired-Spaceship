@@ -2,13 +2,13 @@
 num_runs              = 10
 
 [GENERATIONS]
-num_generations       = 250
+num_generations       = 200
 
 [GP]
 pop_size            = 100
 crossover_prob      = 0.5
 mutation_prob       = 0.5
 tournament_size     = 7
-hof_size            = 2
+hof_size            = 4
 max_tree_size       = 500
-max_tree_height     = 50
+max_tree_height     = 10
