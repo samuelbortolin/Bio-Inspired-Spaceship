@@ -12,7 +12,11 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-Project of Bio-Inspired Artificial Intelligence @ University of Trento for piloting a spaceship in the [Yellow-Spaceship](https://github.com/ph3nix-cpu/Yellow-Spaceship) game.
+Project of Bio-Inspired Artificial Intelligence @ University of Trento.
+
+The goal is the project is to pilot a spaceship in the [Yellow-Spaceship](https://github.com/ph3nix-cpu/Yellow-Spaceship) game using Bio-Inspired techniques.
+
+We focused on two main algorithms, NEAT and GP, and we adapted the game in order to allow the algorithms to control the spaceship.
 
 ## Project structure
 
@@ -25,6 +29,7 @@ Project of Bio-Inspired Artificial Intelligence @ University of Trento for pilot
         ├── gp_train                  [module that contains some classes used by the GP algorithm]
         ├── main                      [script for running the training or the best runs]
         ├── plot_utils                [module that contains utilities for plotting results]
+        ├── reoort                    [report explaining the methodologies used and the results obtained]
         ├── requirements              [requirements file]
         ├── run_game                  [module that contains the game]
         └── utils                     [module that contains utils for training individuals, storing and reading best individuals]
