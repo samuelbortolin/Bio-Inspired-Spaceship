@@ -1,10 +1,11 @@
+import os
+
 import matplotlib.pyplot as plt
 
 import argparse
 import configparser
 import datetime
 import operator
-import sys
 import traceback
 
 import neat
@@ -22,15 +23,13 @@ from utils import eval_genomes, simulate_game, save_best_neat, load_best_neat, e
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Bio Inspired Spaceship")
+    parser.add_argument("--human", action="store_true", default=True, help="Run a game instance that should be piloted")
+    parser.add_argument("--random", action="store_true", help="Run a randomly piloted spaceship")
     parser.add_argument("--run_best_neat", action="store_true", help="Run the best individual found using NEAT")
     parser.add_argument("--run_best_gp", action="store_true", help="Run the best individual found using GP")
     parser.add_argument("--neat", action="store_true", help="Run the NEAT algorithm for training of the NN")
     parser.add_argument("--gp", action="store_true", help="Run the GP algorithm for finding a program")
     args = parser.parse_args()
-
-    if len(sys.argv) == 1:
-        parser.print_help(sys.stderr)
-        sys.exit(1)
 
     if args.neat:
         # Load configuration.
@@ -67,8 +66,8 @@ if __name__ == "__main__":
             save_best_neat(genome, network, config, stats)
 
             # Simulate the game with the winning network and showing it.
-            best_fitness = simulate_game(show_game=True, name="NEAT Spaceship!", net=network)
-            print(f"\nBest fitness simulation:\n{best_fitness}")
+            fitness_simulation = simulate_game(show_game=True, name="NEAT-Piloted Spaceship!", net=network)
+            print(f"Fitness simulation: {fitness_simulation}")
 
         else:
             best_fitnesses = []
@@ -114,17 +113,21 @@ if __name__ == "__main__":
             ax.set_ylabel("Best fitness")
             fig.suptitle(f'NEAT-Spaceship ({len(best_fitnesses)} runs)', fontsize=16)
             now = f"{datetime.datetime.now().isoformat()}".replace(':', '_')
-            fig.savefig(f'runs/NEAT/NEAT_{now}.png', dpi=fig.dpi)
+            dirname = 'runs/NEAT/'
+            if not os.path.isdir(dirname):
+                os.mkdir(dirname)
+            fig.savefig(f'{dirname}/NEAT_{now}.png', dpi=fig.dpi)
             plt.show()
 
-    if args.run_best_neat:
+    elif args.run_best_neat:
         _, network = load_best_neat()
         if network is None:
             print("network not present")
         else:
-            simulate_game(show_game=True, name="NEAT Spaceship!", net=network)
+            fitness_simulation = simulate_game(show_game=True, name="NEAT-Piloted Spaceship!", net=network)
+            print(f"Fitness simulation: {fitness_simulation}")
 
-    if args.gp or args.run_best_gp:
+    elif args.gp or args.run_best_gp:
         primitive_set = gp.PrimitiveSetTyped("MAIN", [float] * 9, Output)
         primitive_set.addPrimitive(if_then_else, [bool, float, float], float)
         primitive_set.addPrimitive(if_then_else, [bool, Output, Output], Output)
@@ -210,7 +213,8 @@ if __name__ == "__main__":
 
                 # Run the best routine
                 routine = gp.compile(hof[0], primitive_set)
-                simulate_game(show_game=True, name="GP Spaceship!", routine=routine)
+                fitness_simulation = simulate_game(show_game=True, name="GP-Piloted Spaceship!", routine=routine)
+                print(f"Fitness simulation: {fitness_simulation}")
 
             else:
                 best_fitnesses = []
@@ -248,14 +252,53 @@ if __name__ == "__main__":
                 ax.set_ylabel("Best fitness")
                 fig.suptitle(f'GP-Spaceship ({len(best_fitnesses)} runs)', fontsize=16)
                 now = f"{datetime.datetime.now().isoformat()}".replace(':', '_')
-                fig.savefig(f'runs/GP/GP_{now}.png', dpi=fig.dpi)
+                dirname = 'runs/GP/'
+                if not os.path.isdir(dirname):
+                    os.mkdir(dirname)
+                fig.savefig(f'{dirname}/GP_{now}.png', dpi=fig.dpi)
                 plt.show()
 
-        if args.run_best_gp:
+        elif args.run_best_gp:
             # Run the best routine
             program = load_best_gp()
             if program is None:
                 print("program not present")
             else:
                 routine = gp.compile(program, primitive_set)
-                simulate_game(show_game=True, name="GP Spaceship!", routine=routine)
+                fitness_simulation = simulate_game(show_game=True, name="GP-Piloted Spaceship!", routine=routine)
+                print(f"Fitness simulation: {fitness_simulation}")
+
+    elif args.random:
+        # Load configuration.
+        config_file = 'configRandom.txt'
+        config_parser = configparser.ConfigParser()
+        config_parser.read(config_file)
+        num_runs = int(config_parser['RUNS']['num_runs'])
+
+        if num_runs == 1:
+            fitness = simulate_game(show_game=True, name="Randomly-Piloted Spaceship!", random_player=True)
+            print("Fitness: %s" % fitness)
+        else:
+            fitnesses = []
+            for i in range(num_runs):
+                print(f"run {i + 1}/{num_runs}")
+                fitness = simulate_game(show_game=False, name="Randomly-Piloted Spaceship!", random_player=True)
+                print("Fitness: %s" % fitness)
+                fitnesses.append(fitness)
+
+            fig = plt.figure("Random-Spaceship")
+            ax = fig.gca()
+            ax.boxplot([fitnesses])
+            ax.set_xticklabels([])
+            ax.set_ylabel("Fitness")
+            fig.suptitle(f'Random-Spaceship ({len(fitnesses)} runs)', fontsize=16)
+            now = f"{datetime.datetime.now().isoformat()}".replace(':', '_')
+            dirname = 'runs/Random/'
+            if not os.path.isdir(dirname):
+                os.mkdir(dirname)
+            fig.savefig(f'{dirname}/Random{now}.png', dpi=fig.dpi)
+            plt.show()
+
+    elif args.human:
+        fitness = simulate_game(show_game=True, name="Human-Piloted Spaceship!", human_player=True)
+        print("Fitness: %s" % fitness)

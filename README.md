@@ -26,6 +26,7 @@ We focused on two main algorithms, NEAT and GP, and we adapted the game in order
     └── src
         ├── configGP                  [configuration file for the GP algorithm]
         ├── configNEAT                [configuration file for the NEAT algorithm]
+        ├── configRandom              [configuration file for the randomly piloted spaceship]
         ├── gp_train                  [module that contains some classes used by the GP algorithm]
         ├── main                      [script for running the training or the best runs]
         ├── plot_utils                [module that contains utilities for plotting results]
@@ -59,12 +60,12 @@ Required Python packages can be installed using the command:
 
 The script can be run using the following commands:
 
-* In order to launch the NEAT algorithm and find the best NN for piloting the spaceship:
+* In order to launch the NEAT algorithm and find the best NN for piloting the spaceship based on `configGP.txt`:
 ```bash
     python3 main.py --neat
 ```
 
-* In order to launch the GP algorithm and find the best program for piloting the spaceship:
+* In order to launch the GP algorithm and find the best program for piloting the spaceship based on `configNEAT.txt`:
 ```bash
     python3 main.py --gp
 ```
@@ -78,3 +79,7 @@ The script can be run using the following commands:
 ```bash
     python3 main.py --run_best_gp
 ```
+
+* The default without any arguments or with the argument `--human` will execute a game instance that should be piloted.
+
+* With the argument `--random` will execute a randomly piloted spaceship based on `configRandom.txt`.

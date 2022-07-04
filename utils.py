@@ -13,12 +13,12 @@ import plot_utils
 import run_game
 
 
-def simulate_game(show_game, name="", net=None, routine=None):
+def simulate_game(show_game, name="", net=None, routine=None, random_player=False, human_player=False, frame_limit=False):
     win = run_game.initialize(show_game, name)
 
     game = True
     while game:
-        result = run_game.run(win, net=net, routine=routine)
+        result = run_game.run(win, net=net, routine=routine, random_player=random_player, human_player=human_player, frame_limit=frame_limit)
         if result == 0:
             game = False
 
@@ -31,21 +31,20 @@ def simulate_game(show_game, name="", net=None, routine=None):
         sum([((run_game.alien_health - alien.health) / run_game.alien_health) * 10 for alien in run_game.aliens]) + \
         sum([50 - enemy_spaceship.health for enemy_spaceship in run_game.enemy_spaceships])
 
-    print(f"{fitness} -> {run_game.level} {run_game.alien_kills} {run_game.spaceship_kills} {run_game.frames} {run_game.battleship_healths} {sum([health / 50 for health in run_game.battleship_healths])} {sum([((run_game.alien_health - alien.health) / run_game.alien_health) * 10 for alien in run_game.aliens])} {sum([50 - enemy_spaceship.health for enemy_spaceship in run_game.enemy_spaceships])}")
     return fitness
 
 
 def eval_genomes(genomes, config):
     for genome_id, genome in genomes:
         net = neat.nn.FeedForwardNetwork.create(genome, config)
-        genome.fitness = simulate_game(show_game=False, net=net)
+        genome.fitness = simulate_game(show_game=False, net=net, frame_limit=True)
 
 
 def eval_program(program, primitive_set):
     # Transform the tree expression to functional Python code
     routine = gp.compile(program, primitive_set)
     # Run the generated routine
-    return simulate_game(show_game=False, routine=routine),
+    return simulate_game(show_game=False, routine=routine, frame_limit=True),
 
 
 def load_best_neat():

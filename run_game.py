@@ -1,6 +1,9 @@
+import random
+
 import pygame
 import time
 import numpy as np
+from numpy.random import rand
 
 from gp_train import A, B, D, E, F
 
@@ -264,7 +267,7 @@ K_LEFT, K_RIGHT, K_SPACE = 1073741904, 1073741903, 32
 keys = {
     K_LEFT: False,
     K_RIGHT: False,
-    K_SPACE: True
+    K_SPACE: False
 }
 battleship_healths = []
 aliens_x = [0, 0]
@@ -454,7 +457,7 @@ def initialize(show, win_caption):
     keys = {
         K_LEFT: False,
         K_RIGHT: False,
-        K_SPACE: True
+        K_SPACE: False
     }
     battleship_healths = []
     aliens_x = [0, 0]
@@ -464,7 +467,7 @@ def initialize(show, win_caption):
     return win
 
 
-def run(win, net=None, routine=None):
+def run(win, net=None, routine=None, random_player=False, human_player=False, frame_limit=False):
     global alien_kills
     global spaceship_kills
     global battleship
@@ -483,7 +486,7 @@ def run(win, net=None, routine=None):
     global shoot_loop
 
     frames += 1
-    if frames > 1000000:
+    if frame_limit and frames > 1000000:
         print("game stopped")
         return 0  # stop the game, prevent training get stuck
 
@@ -544,7 +547,7 @@ def run(win, net=None, routine=None):
                 K_SPACE: i == 1 or i == 3 or i == 5
             }
 
-        if routine:
+        elif routine:
             output = routine(battleship.x,
                              battleship.vel,
                              aliens_x[0],
@@ -559,6 +562,17 @@ def run(win, net=None, routine=None):
                 K_RIGHT: output == E or output == F,
                 K_SPACE: output == B or output == D or output == F
             }
+
+        elif random_player:
+            output = random.choice([0, 1, 2, 3, 4, 5])
+            keys = {
+                K_LEFT: output == 0 or output == 1,
+                K_RIGHT: output == 4 or output == 5,
+                K_SPACE: output == 1 or output == 3 or output == 5
+            }
+
+        elif human_player:
+            keys = pygame.key.get_pressed()
 
     if keys[K_LEFT]:
         if battleship.x > battleship.vel:
