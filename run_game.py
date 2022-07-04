@@ -74,29 +74,29 @@ class Spaceship:
 
 class EnemyAlien:
 
-    walk_right = [pygame.image.load('data/R1E.png'),
-                  pygame.image.load('data/R2E.png'),
-                  pygame.image.load('data/R3E.png'),
-                  pygame.image.load('data/R4E.png'),
-                  pygame.image.load('data/R5E.png'),
-                  pygame.image.load('data/R6E.png'),
-                  pygame.image.load('data/R7E.png'),
-                  pygame.image.load('data/R8E.png'),
-                  pygame.image.load('data/R9E.png'),
-                  pygame.image.load('data/R10E.png'),
-                  pygame.image.load('data/R11E.png')]
+    walk_right = [pygame.image.load('images/R1E.png'),
+                  pygame.image.load('images/R2E.png'),
+                  pygame.image.load('images/R3E.png'),
+                  pygame.image.load('images/R4E.png'),
+                  pygame.image.load('images/R5E.png'),
+                  pygame.image.load('images/R6E.png'),
+                  pygame.image.load('images/R7E.png'),
+                  pygame.image.load('images/R8E.png'),
+                  pygame.image.load('images/R9E.png'),
+                  pygame.image.load('images/R10E.png'),
+                  pygame.image.load('images/R11E.png')]
 
-    walk_left = [pygame.image.load('data/L1E.png'),
-                 pygame.image.load('data/L2E.png'),
-                 pygame.image.load('data/L3E.png'),
-                 pygame.image.load('data/L4E.png'),
-                 pygame.image.load('data/L5E.png'),
-                 pygame.image.load('data/L6E.png'),
-                 pygame.image.load('data/L7E.png'),
-                 pygame.image.load('data/L8E.png'),
-                 pygame.image.load('data/L9E.png'),
-                 pygame.image.load('data/L10E.png'),
-                 pygame.image.load('data/L11E.png')]
+    walk_left = [pygame.image.load('images/L1E.png'),
+                 pygame.image.load('images/L2E.png'),
+                 pygame.image.load('images/L3E.png'),
+                 pygame.image.load('images/L4E.png'),
+                 pygame.image.load('images/L5E.png'),
+                 pygame.image.load('images/L6E.png'),
+                 pygame.image.load('images/L7E.png'),
+                 pygame.image.load('images/L8E.png'),
+                 pygame.image.load('images/L9E.png'),
+                 pygame.image.load('images/L10E.png'),
+                 pygame.image.load('images/L11E.png')]
 
     def __init__(self, x, y, health, vel):
         self.x = x
@@ -425,7 +425,7 @@ def initialize(show, win_caption):
     show_game = show
     if show_game:
         pygame.init()
-        game_background = pygame.image.load('data/bg.jpg')
+        game_background = pygame.image.load('images/bg.jpg')
         win = pygame.display.set_mode((screen_width, screen_height))
         pygame.display.set_caption(win_caption)
     else:
