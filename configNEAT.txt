@@ -2,7 +2,7 @@
 num_runs                = 10
 
 [GENERATIONS]
-num_generations         = 250
+num_generations         = 200
 
 [NEAT]
 fitness_criterion       = max
