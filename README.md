@@ -23,17 +23,17 @@ We focused on two main algorithms, NEAT and GP, and we adapted the game in order
     Bio-Inspired-Spaceship
     ├── images          [folder in which are contained the images used by the game for the graphical interface]
     ├── runs            [folder in which are contained results of the runs]
-    └── src
-        ├── configGP                  [configuration file for the GP algorithm]
-        ├── configNEAT                [configuration file for the NEAT algorithm]
-        ├── configRandom              [configuration file for the randomly piloted spaceship]
-        ├── gp_train                  [module that contains some classes used by the GP algorithm]
-        ├── main                      [script for running the training or the best runs]
-        ├── plot_utils                [module that contains utilities for plotting results]
-        ├── reoort                    [report explaining the methodologies used and the results obtained]
-        ├── requirements              [requirements file]
-        ├── run_game                  [module that contains the game]
-        └── utils                     [module that contains utils for training individuals, storing and reading best individuals]
+    ├── videos          [folder in which are contained videos of the best individuals]
+    ├── configGP        [configuration file for the GP algorithm]
+    ├── configNEAT      [configuration file for the NEAT algorithm]
+    ├── configRandom    [configuration file for the randomly piloted spaceship]
+    ├── gp_train        [module that contains some classes used by the GP algorithm]
+    ├── main            [script for running the training or the best runs]
+    ├── plot_utils      [module that contains utilities for plotting results]
+    ├── report          [report explaining the methodologies used and the results obtained]
+    ├── requirements    [requirements file]
+    ├── run_game        [module that contains the game]
+    └── utils           [module that contains utils for training individuals, storing and reading best individuals]
 
 
 ## Setup
