@@ -58,7 +58,7 @@ Required Python packages can be installed using the command:
 
 ## Usage
 
-The script can be run using the following commands:
+The script can be run using the following arguments:
 
 * In order to launch the NEAT algorithm and find the best NN for piloting the spaceship based on `configGP.txt`:
 ```bash
@@ -80,6 +80,12 @@ The script can be run using the following commands:
     python3 main.py --run_best_gp
 ```
 
-* The default without any arguments or with the argument `--human` will execute a game instance that should be piloted.
+* In order to execute a randomly piloted spaceship based on `configRandom.txt`:
+```bash
+    python3 main.py --random
+```
 
-* With the argument `--random` will execute a randomly piloted spaceship based on `configRandom.txt`.
+* In order to execute a game instance that should be piloted (this is also the default with no arguments specified):
+```bash
+    python3 main.py --human
+```

@@ -3,9 +3,9 @@ import random
 import pygame
 import time
 import numpy as np
-from numpy.random import rand
 
 from gp_train import A, B, D, E, F
+
 
 show_game = False
 game_background = None
