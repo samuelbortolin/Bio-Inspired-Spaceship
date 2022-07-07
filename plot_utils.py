@@ -30,7 +30,6 @@ def plot_stats(statistics, ylog=False, view=False, filename='avg_fitness.png'):
     plt.plot(generation, avg_fitness + stdev_fitness, 'g-.', label="+1 sd")
     plt.plot(generation, best_fitness, 'r-', label="best")
 
-    # plt.title("Population's average/std. dev and best fitness")
     plt.xlabel("Generations")
     plt.ylabel("Fitness")
     plt.grid()
@@ -59,7 +58,6 @@ def plot_species(statistics, view=False, filename='speciation.png'):
     ax = fig.add_subplot(111)
     ax.stackplot(range(num_generations), *curves)
 
-    # plt.title("Speciation")
     plt.ylabel("Size per Species")
     plt.xlabel("Generations")
 
@@ -76,7 +74,6 @@ def plot_species(statistics, view=False, filename='speciation.png'):
 
 def draw_net(config, genome, view=False, filename=None, node_names=None, show_disabled=True, prune_unused=False, node_colors=None, fmt='png'):
     """ Receives a genome and draws a neural network with arbitrary topology. """
-    # Attributes for network nodes.
     if graphviz is None:
         warnings.warn("This display is not available due to a missing optional dependency (graphviz)")
         return
@@ -140,8 +137,6 @@ def draw_net(config, genome, view=False, filename=None, node_names=None, show_di
 
     for cg in genome.connections.values():
         if cg.enabled or show_disabled:
-            # if cg.input not in used_nodes or cg.output not in used_nodes:
-            #     continue
             input_key, output_key = cg.key
             a = node_names.get(input_key, str(input_key))
             b = node_names.get(output_key, str(output_key))
@@ -161,7 +156,6 @@ def plot_trends(logbook, name, view=False, folder=None):
     fit_avg = logbook.select("avg")
     fit_std = logbook.select("std")
 
-    # plt.title("Genetic Programming (fitness trend)")
     fig = plt.figure("Genetic Programming (fitness trend)")
     ax1 = fig.add_subplot(111)
     ax1.plot(gen, fit_min, label="Min")

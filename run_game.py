@@ -517,7 +517,7 @@ def run(win, net=None, routine=None, random_player=False, human_player=False, fr
 
         laser_x = [0, 0]
         laser_y = [0, 0]
-        # Give as input the 5 closer enemy lasers
+        # Give as input the 2 closest enemy lasers
         enemy_lasers_with_distance = [(laser, pow(pow(laser.x - battleship.x, 2) + pow(laser.y - battleship.y, 2), 1 / 2)) for laser in enemy_lasers]
         enemy_lasers_with_distance.sort(key=lambda x: x[1])
         for e, enemy_laser_with_distance in enumerate(enemy_lasers_with_distance):
