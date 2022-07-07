@@ -14,7 +14,7 @@
 
 Project of Bio-Inspired Artificial Intelligence @ University of Trento.
 
-The goal is the project is to pilot a battleship in the [Yellow-Spaceship](https://github.com/ph3nix-cpu/Yellow-Spaceship) game using Bio-Inspired techniques.
+The goal of the project is to pilot a battleship in the [Yellow-Spaceship](https://github.com/ph3nix-cpu/Yellow-Spaceship) game using Bio-Inspired techniques.
 
 We focused on two main algorithms, NEAT and GP, and we adapted the game in order to allow the algorithms to control the battleship.
 
