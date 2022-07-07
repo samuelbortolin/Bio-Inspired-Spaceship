@@ -14,9 +14,9 @@
 
 Project of Bio-Inspired Artificial Intelligence @ University of Trento.
 
-The goal is the project is to pilot a spaceship in the [Yellow-Spaceship](https://github.com/ph3nix-cpu/Yellow-Spaceship) game using Bio-Inspired techniques.
+The goal is the project is to pilot a battleship in the [Yellow-Spaceship](https://github.com/ph3nix-cpu/Yellow-Spaceship) game using Bio-Inspired techniques.
 
-We focused on two main algorithms, NEAT and GP, and we adapted the game in order to allow the algorithms to control the spaceship.
+We focused on two main algorithms, NEAT and GP, and we adapted the game in order to allow the algorithms to control the battleship.
 
 ## Project structure
 
@@ -60,12 +60,12 @@ Required Python packages can be installed using the command:
 
 The script can be run using the following arguments:
 
-* In order to launch the NEAT algorithm and find the best NN for piloting the spaceship based on `configGP.txt`:
+* In order to launch the NEAT algorithm and find the best NN for piloting the battleship based on `configGP.txt`:
 ```bash
     python3 main.py --neat
 ```
 
-* In order to launch the GP algorithm and find the best program for piloting the spaceship based on `configNEAT.txt`:
+* In order to launch the GP algorithm and find the best program for piloting the battleship based on `configNEAT.txt`:
 ```bash
     python3 main.py --gp
 ```
@@ -80,12 +80,12 @@ The script can be run using the following arguments:
     python3 main.py --run_best_gp
 ```
 
-* In order to execute a randomly piloted spaceship based on `configRandom.txt`:
+* In order to execute a randomly piloted battleship based on `configRandom.txt`:
 ```bash
     python3 main.py --random
 ```
 
-* In order to execute a game instance that should be piloted (this is also the default with no arguments specified):
+* In order to execute a game instance with a battleship that should be piloted (this is also the default with no arguments specified):
 ```bash
     python3 main.py --human
 ```
